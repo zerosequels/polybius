@@ -9,7 +9,8 @@ var godot_api
 
 func _ready():
 	if not godot_api:
-		var GodotAPIScript = preload("res://addons/claude_mcp/godot_api.gd")
+		var script_path = get_script().resource_path.get_base_dir()
+		var GodotAPIScript = load(script_path + "/godot_api.gd")
 		godot_api = GodotAPIScript.new()
 		add_child(godot_api)
 

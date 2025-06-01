@@ -5,7 +5,8 @@ var http_server
 
 func _enter_tree():
 	print("Claude MCP Plugin: Starting...")
-	var HTTPServerScript = preload("res://addons/claude_mcp/http_server.gd")
+	var script_path = get_script().resource_path.get_base_dir()
+	var HTTPServerScript = load(script_path + "/http_server.gd")
 	http_server = HTTPServerScript.new()
 	add_child(http_server)
 	http_server.start_server()
