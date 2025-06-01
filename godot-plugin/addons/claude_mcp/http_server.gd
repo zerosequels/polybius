@@ -5,11 +5,13 @@ class_name HTTPServer
 var tcp_server: TCPServer
 var port: int = 8080
 var is_running: bool = false
-var godot_api: GodotAPI
+var godot_api
 
 func _ready():
-	godot_api = GodotAPI.new()
-	add_child(godot_api)
+	if not godot_api:
+		var GodotAPIScript = preload("res://addons/claude_mcp/godot_api.gd")
+		godot_api = GodotAPIScript.new()
+		add_child(godot_api)
 
 func start_server():
 	tcp_server = TCPServer.new()

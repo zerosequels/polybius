@@ -6,6 +6,11 @@ func create_scene(params: Dictionary) -> Dictionary:
 	var scene_name = params.get("name", "NewScene")
 	var scene_path = params.get("path", "res://scenes/%s.tscn" % scene_name)
 	
+	# Ensure directory exists
+	var dir = DirAccess.open("res://")
+	if not dir.dir_exists("scenes"):
+		dir.make_dir("scenes")
+	
 	var scene = PackedScene.new()
 	var root_node = Node.new()
 	root_node.name = scene_name
@@ -52,24 +57,15 @@ func open_scene(params: Dictionary) -> Dictionary:
 			}
 		}
 	
-	var error = EditorInterface.open_scene_from_path(scene_path)
-	if error == OK:
-		return {
-			"status": 200,
-			"body": {
-				"success": true,
-				"scene_path": scene_path,
-				"message": "Scene opened successfully"
-			}
+	EditorInterface.open_scene_from_path(scene_path)
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"scene_path": scene_path,
+			"message": "Scene opened successfully"
 		}
-	else:
-		return {
-			"status": 500,
-			"body": {
-				"success": false,
-				"error": "Failed to open scene: " + str(error)
-			}
-		}
+	}
 
 func get_current_scene() -> Dictionary:
 	var current_scene = EditorInterface.get_edited_scene_root()

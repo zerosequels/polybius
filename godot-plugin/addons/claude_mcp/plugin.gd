@@ -1,11 +1,12 @@
 @tool
 extends EditorPlugin
 
-var http_server: HTTPServer
+var http_server
 
 func _enter_tree():
 	print("Claude MCP Plugin: Starting...")
-	http_server = HTTPServer.new()
+	var HTTPServerScript = preload("res://addons/claude_mcp/http_server.gd")
+	http_server = HTTPServerScript.new()
 	add_child(http_server)
 	http_server.start_server()
 	print("Claude MCP Plugin: HTTP server started on port 8080")
