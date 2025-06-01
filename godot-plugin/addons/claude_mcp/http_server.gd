@@ -83,6 +83,17 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["GET", "/health"]:
 			return {"status": 200, "body": {"status": "ok", "plugin": "claude_mcp"}}
 		
+		["GET", "/debug/filesystem"]:
+			var dir = DirAccess.open("res://")
+			return {
+				"status": 200, 
+				"body": {
+					"current_dir": dir.get_current_dir(),
+					"scripts_dir_exists": dir.dir_exists("scripts"),
+					"can_write": true
+				}
+			}
+		
 		["POST", "/scene/create"]:
 			return godot_api.create_scene(body)
 		

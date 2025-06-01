@@ -158,13 +158,28 @@ func create_script(params: Dictionary) -> Dictionary:
 			}
 		}
 	
+	# Ensure directory exists
+	var dir_path = script_path.get_base_dir()
+	var dir = DirAccess.open("res://")
+	if not dir.dir_exists(dir_path.replace("res://", "")):
+		var make_dir_error = dir.make_dir_recursive(dir_path.replace("res://", ""))
+		if make_dir_error != OK:
+			return {
+				"status": 500,
+				"body": {
+					"success": false,
+					"error": "Failed to create directory: " + str(make_dir_error)
+				}
+			}
+	
 	var file = FileAccess.open(script_path, FileAccess.WRITE)
 	if not file:
+		var error_code = FileAccess.get_open_error()
 		return {
 			"status": 500,
 			"body": {
 				"success": false,
-				"error": "Failed to create script file"
+				"error": "Failed to create script file. Error code: " + str(error_code) + ", Path: " + script_path
 			}
 		}
 	
