@@ -1,6 +1,9 @@
 from mcp.types import Tool, TextContent
 from typing import Any, Sequence
-from ..godot_client import GodotClient
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from godot_client import GodotClient
 
 def get_script_tools() -> list[Tool]:
     return [

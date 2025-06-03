@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import asyncio
 import logging
 from typing import Any, Sequence
@@ -7,9 +5,9 @@ from mcp.server import Server
 from mcp.types import Resource, Tool, TextContent, ImageContent, EmbeddedResource
 from mcp.server.stdio import stdio_server
 
-from .godot_client import GodotClient
-from .tools.scene_tools import get_scene_tools, handle_scene_tool
-from .tools.script_tools import get_script_tools, handle_script_tool
+from godot_client import GodotClient
+from tools.scene_tools import get_scene_tools, handle_scene_tool
+from tools.script_tools import get_script_tools, handle_script_tool
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -17,9 +15,12 @@ logger = logging.getLogger(__name__)
 
 class GodotMCPServer:
     def __init__(self):
+        logger.info("🔧 Initializing Godot MCP Server...")
         self.server = Server("godot-mcp-server")
         self.godot_client = GodotClient()
+        logger.info("📡 Setting up MCP tool handlers...")
         self.setup_handlers()
+        logger.info("🛠️  Registered tools: scene management, script creation, health check")
     
     def setup_handlers(self):
         @self.server.list_tools()
@@ -87,8 +88,18 @@ class GodotMCPServer:
 
 async def main():
     """Main entry point"""
-    server = GodotMCPServer()
-    await server.run()
+    logger.info("🚀 Starting Godot MCP Server...")
+    logger.info("Server name: godot-mcp-server")
+    logger.info("Communication: JSON-RPC over stdio")
+    
+    try:
+        server = GodotMCPServer()
+        logger.info("✅ MCP Server initialized successfully")
+        logger.info("🔌 Waiting for MCP client connection...")
+        await server.run()
+    except Exception as e:
+        logger.error(f"❌ Failed to start MCP server: {e}")
+        raise
 
 if __name__ == "__main__":
     asyncio.run(main())

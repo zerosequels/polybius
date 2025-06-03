@@ -1,7 +1,10 @@
 from mcp.types import Tool, TextContent
 import json
 from typing import Any, Sequence
-from ..godot_client import GodotClient
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from godot_client import GodotClient
 
 # Scene management tools
 def get_scene_tools() -> list[Tool]:
