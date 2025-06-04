@@ -11,7 +11,7 @@ def get_scene_tools() -> list[Tool]:
     return [
         Tool(
             name="create_scene",
-            description="Create a new scene in Godot",
+            description="Create a new scene in Godot with specified root node type",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -22,6 +22,11 @@ def get_scene_tools() -> list[Tool]:
                     "path": {
                         "type": "string", 
                         "description": "Optional file path for the scene (defaults to res://scenes/{name}.tscn)"
+                    },
+                    "root_node_type": {
+                        "type": "string",
+                        "description": "Type of root node for the scene. Common types: Node2D (for 2D games), Node3D (for 3D games), Control (for UI), Node (generic). If not specified, you MUST ask the user to clarify what type of scene they want to create.",
+                        "enum": ["Node2D", "Node3D", "Control", "Node"]
                     }
                 },
                 "required": ["name"]
@@ -79,12 +84,26 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
     if name == "create_scene":
         scene_name = arguments["name"]
         scene_path = arguments.get("path")
-        result = await godot_client.create_scene(scene_name, scene_path)
+        root_node_type = arguments.get("root_node_type")
+        
+        # Validate root node type is specified
+        if not root_node_type:
+            return [TextContent(
+                type="text",
+                text=f"Please specify what type of scene you want to create for '{scene_name}':\n"
+                     f"- Node2D (for 2D games/sprites)\n"
+                     f"- Node3D (for 3D games/meshes)\n"
+                     f"- Control (for UI/menus)\n"
+                     f"- Node (generic scene, rarely used)\n\n"
+                     f"Example: Create a 2D scene called '{scene_name}' with Node2D root"
+            )]
+        
+        result = await godot_client.create_scene(scene_name, scene_path, root_node_type)
         
         if result.get("success"):
             return [TextContent(
                 type="text",
-                text=f"Scene '{scene_name}' created successfully at {result.get('scene_path', 'default location')}"
+                text=f"Scene '{scene_name}' created successfully at {result.get('scene_path', 'default location')} with {root_node_type} root node"
             )]
         else:
             return [TextContent(

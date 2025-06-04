@@ -5,6 +5,7 @@ class_name GodotAPI
 func create_scene(params: Dictionary) -> Dictionary:
 	var scene_name = params.get("name", "NewScene")
 	var scene_path = params.get("path", "res://scenes/%s.tscn" % scene_name)
+	var root_node_type = params.get("root_node_type", "Node")
 	
 	# Ensure directory exists
 	var dir = DirAccess.open("res://")
@@ -12,7 +13,17 @@ func create_scene(params: Dictionary) -> Dictionary:
 		dir.make_dir("scenes")
 	
 	var scene = PackedScene.new()
-	var root_node = Node.new()
+	var root_node = _create_node_by_type(root_node_type)
+	
+	if not root_node:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Invalid root node type: " + root_node_type
+			}
+		}
+	
 	root_node.name = scene_name
 	scene.pack(root_node)
 	
@@ -24,6 +35,7 @@ func create_scene(params: Dictionary) -> Dictionary:
 			"body": {
 				"success": true,
 				"scene_path": scene_path,
+				"root_node_type": root_node_type,
 				"message": "Scene created successfully"
 			}
 		}
