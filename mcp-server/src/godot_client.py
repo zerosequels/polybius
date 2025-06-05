@@ -84,6 +84,131 @@ class GodotClient:
         except Exception as e:
             return {"error": str(e), "success": False}
     
+    async def list_scenes(self) -> Dict[str, Any]:
+        """List all scenes in the Godot project"""
+        try:
+            response = await self.client.get(f"{self.base_url}/scene/list")
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "scenes": []}
+    
+    async def duplicate_scene(self, source_path: str, target_path: Optional[str] = None, new_name: Optional[str] = None) -> Dict[str, Any]:
+        """Duplicate an existing scene"""
+        data = {"source_path": source_path}
+        if target_path:
+            data["target_path"] = target_path
+        if new_name:
+            data["new_name"] = new_name
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/scene/duplicate", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def delete_scene(self, path: str, confirm: bool = False) -> Dict[str, Any]:
+        """Delete a scene file"""
+        data = {"path": path, "confirm": confirm}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/scene/delete", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def delete_node(self, node_path: str, confirm: bool = False) -> Dict[str, Any]:
+        """Delete a node from the current scene"""
+        data = {"node_path": node_path, "confirm": confirm}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/node/delete", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def move_node(self, node_path: str, new_parent_path: str = "", new_index: int = -1) -> Dict[str, Any]:
+        """Move a node to a new parent or position"""
+        data = {"node_path": node_path}
+        if new_parent_path:
+            data["new_parent_path"] = new_parent_path
+        if new_index >= 0:
+            data["new_index"] = new_index
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/node/move", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def get_node_properties(self, node_path: str) -> Dict[str, Any]:
+        """Get properties of a node"""
+        data = {"node_path": node_path}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/node/properties/get", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def set_node_properties(self, node_path: str, properties: Dict[str, Any]) -> Dict[str, Any]:
+        """Set properties of a node"""
+        data = {"node_path": node_path, "properties": properties}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/node/properties/set", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def list_scripts(self) -> Dict[str, Any]:
+        """List all script files in the Godot project"""
+        try:
+            response = await self.client.get(f"{self.base_url}/script/list")
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "scripts": []}
+    
+    async def read_script(self, path: str) -> Dict[str, Any]:
+        """Read the content of a script file"""
+        data = {"path": path}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/script/read", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def modify_script(self, path: str, content: str) -> Dict[str, Any]:
+        """Modify the content of a script file"""
+        data = {"path": path, "content": content}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/script/modify", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def delete_script(self, path: str, confirm: bool = False) -> Dict[str, Any]:
+        """Delete a script file"""
+        data = {"path": path, "confirm": confirm}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/script/delete", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
     async def close(self):
         """Close the HTTP client"""
         await self.client.aclose()

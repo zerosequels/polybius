@@ -52,6 +52,30 @@
 - **Returns**: Scene name, path, type, child count
 - **Features**: Handles no-scene-open state
 
+#### `list_scenes` ✨ NEW
+- **Functionality**: List all scene files in the project
+- **Parameters**: None
+- **Features**:
+  - Recursive directory scanning for .tscn files
+  - File path and directory information
+  - Count of total scenes found
+
+#### `duplicate_scene` ✨ NEW
+- **Functionality**: Duplicate existing scene files
+- **Parameters**: `source_path` (required), `target_path` (optional), `new_name` (optional)
+- **Features**:
+  - Automatic target path generation if not specified
+  - Directory creation for target location
+  - Copy validation and error handling
+
+#### `delete_scene` ✨ NEW
+- **Functionality**: Delete scene files from the project
+- **Parameters**: `path` (required), `confirm` (required)
+- **Features**:
+  - Confirmation requirement for safety
+  - File existence validation
+  - Safe deletion with error handling
+
 #### `add_node`
 - **Functionality**: Add nodes to current scene
 - **Parameters**: `type` (required), `name` (required), `parent_path` (optional)
@@ -64,6 +88,42 @@
   - Utility: `Timer`
 - **Features**: Parent node validation, automatic ownership assignment
 
+#### `delete_node` ✨ NEW
+- **Functionality**: Remove nodes from the current scene
+- **Parameters**: `node_path` (required), `confirm` (required)
+- **Features**:
+  - Confirmation requirement for safety
+  - Node existence validation
+  - Protection against deleting scene root
+  - Safe removal with error handling
+
+#### `move_node` ✨ NEW
+- **Functionality**: Move nodes to new parents or positions
+- **Parameters**: `node_path` (required), `new_parent_path` (optional), `new_index` (optional)
+- **Features**:
+  - Reparenting to any valid node
+  - Position control within parent
+  - Scene ownership maintenance
+  - Protection against moving scene root
+
+#### `get_node_properties` ✨ NEW
+- **Functionality**: Retrieve node property values
+- **Parameters**: `node_path` (required)
+- **Features**:
+  - All accessible property enumeration
+  - Property value extraction
+  - Node type identification
+  - Storage-eligible property filtering
+
+#### `set_node_properties` ✨ NEW
+- **Functionality**: Modify node property values
+- **Parameters**: `node_path` (required), `properties` (required)
+- **Features**:
+  - Batch property modification
+  - Individual property validation
+  - Success/failure reporting per property
+  - Type-safe property setting
+
 ### ✅ **Script Management Tools** (IMPLEMENTED)
 
 #### `create_script`
@@ -74,6 +134,38 @@
   - Default GDScript template generation
   - Optional script attachment to scene nodes
   - File system error handling
+
+#### `list_scripts` ✨ NEW
+- **Functionality**: List all GDScript files in the project
+- **Parameters**: None
+- **Features**:
+  - Recursive directory scanning
+  - File path and directory information
+  - Count of total scripts found
+
+#### `read_script` ✨ NEW
+- **Functionality**: Read the content of existing script files
+- **Parameters**: `path` (required)
+- **Features**:
+  - Full script content retrieval
+  - File existence validation
+  - Formatted code display
+
+#### `modify_script` ✨ NEW
+- **Functionality**: Modify the content of existing script files
+- **Parameters**: `path` (required), `content` (required)
+- **Features**:
+  - Complete script content replacement
+  - File validation before modification
+  - Error handling for write operations
+
+#### `delete_script` ✨ NEW
+- **Functionality**: Delete script files from the project
+- **Parameters**: `path` (required), `confirm` (required)
+- **Features**:
+  - Confirmation requirement for safety
+  - File existence validation
+  - Safe deletion with error handling
 
 ### ✅ **Health & Diagnostics** (IMPLEMENTED)
 
@@ -86,10 +178,21 @@
 - `GET /health` - Plugin health status
 - `GET /debug/filesystem` - File system diagnostics
 - `GET /scene/current` - Current scene info
+- `GET /scene/list` - List all scenes ✨ NEW
 - `POST /scene/create` - Scene creation
 - `POST /scene/open` - Scene opening
+- `POST /scene/duplicate` - Scene duplication ✨ NEW
+- `POST /scene/delete` - Scene deletion ✨ NEW
 - `POST /node/add` - Node addition
+- `POST /node/delete` - Node deletion ✨ NEW
+- `POST /node/move` - Node movement/reparenting ✨ NEW
+- `POST /node/properties/get` - Get node properties ✨ NEW
+- `POST /node/properties/set` - Set node properties ✨ NEW
 - `POST /script/create` - Script creation
+- `GET /script/list` - List all scripts ✨ NEW
+- `POST /script/read` - Read script content ✨ NEW
+- `POST /script/modify` - Modify script content ✨ NEW
+- `POST /script/delete` - Script deletion ✨ NEW
 
 ### ✅ **Development & Testing** (IMPLEMENTED)
 
@@ -133,27 +236,27 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 
 ## 📋 **Planned Features** (ROADMAP)
 
-### 🟡 **Phase 1: Core Enhancement** (Next Sprint)
+### ✅ **Phase 1: Core Enhancement** (COMPLETED 2025-06-05)
 
-#### Scene Management Extensions
-- [ ] **`list_scenes`** - List all scenes in project
-- [ ] **`duplicate_scene`** - Copy existing scenes
-- [ ] **`delete_scene`** - Remove scene files safely
-- [ ] **Scene Tree Navigation** - Get/traverse scene hierarchy
+#### Scene Management Extensions ✅ COMPLETED
+- [x] **`list_scenes`** - List all scenes in project
+- [x] **`duplicate_scene`** - Copy existing scenes
+- [x] **`delete_scene`** - Remove scene files safely
+- [ ] **Scene Tree Navigation** - Get/traverse scene hierarchy (deferred)
 
-#### Node Management Extensions  
-- [ ] **`delete_node`** - Remove nodes from scenes
-- [ ] **`move_node`** - Reparent/reorder nodes
-- [ ] **`get_node_properties`** - Read node property values
-- [ ] **`set_node_properties`** - Modify node properties
-- [ ] **Extended Node Types** - Support for all Godot node types
+#### Node Management Extensions ✅ COMPLETED  
+- [x] **`delete_node`** - Remove nodes from scenes
+- [x] **`move_node`** - Reparent/reorder nodes
+- [x] **`get_node_properties`** - Read node property values
+- [x] **`set_node_properties`** - Modify node properties
+- [ ] **Extended Node Types** - Support for all Godot node types (deferred)
 
-#### Script Management Extensions
-- [ ] **`list_scripts`** - Enumerate project scripts
-- [ ] **`read_script`** - Get script content
-- [ ] **`modify_script`** - Edit existing scripts
-- [ ] **`delete_script`** - Remove script files
-- [ ] **Script Analysis** - Parse GDScript for functions/classes
+#### Script Management Extensions ✅ COMPLETED
+- [x] **`list_scripts`** - Enumerate project scripts
+- [x] **`read_script`** - Get script content
+- [x] **`modify_script`** - Edit existing scripts
+- [x] **`delete_script`** - Remove script files
+- [ ] **Script Analysis** - Parse GDScript for functions/classes (deferred)
 
 ### 🟡 **Phase 2: Asset Management** (Future)
 
@@ -223,11 +326,11 @@ Tool(
 
 ## 📊 **Current Statistics**
 
-- **Total MCP Tools**: 6 implemented
-- **HTTP Endpoints**: 7 functional  
+- **Total MCP Tools**: 15 implemented (9 new in Phase 1)
+- **HTTP Endpoints**: 16 functional (9 new in Phase 1)  
 - **Supported Node Types**: 11 core types
 - **Test Coverage**: HTTP endpoints (100%), MCP tools (manual)
-- **Lines of Code**: ~800 (estimated)
+- **Lines of Code**: ~1400 (estimated)
 
 ---
 

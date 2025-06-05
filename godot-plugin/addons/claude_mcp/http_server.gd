@@ -103,11 +103,44 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["GET", "/scene/current"]:
 			return godot_api.get_current_scene()
 		
+		["GET", "/scene/list"]:
+			return godot_api.list_scenes()
+		
+		["POST", "/scene/duplicate"]:
+			return godot_api.duplicate_scene(body)
+		
+		["POST", "/scene/delete"]:
+			return godot_api.delete_scene(body)
+		
 		["POST", "/node/add"]:
 			return godot_api.add_node(body)
 		
+		["POST", "/node/delete"]:
+			return godot_api.delete_node(body)
+		
+		["POST", "/node/move"]:
+			return godot_api.move_node(body)
+		
+		["POST", "/node/properties/get"]:
+			return godot_api.get_node_properties(body)
+		
+		["POST", "/node/properties/set"]:
+			return godot_api.set_node_properties(body)
+		
 		["POST", "/script/create"]:
 			return godot_api.create_script(body)
+		
+		["GET", "/script/list"]:
+			return godot_api.list_scripts()
+		
+		["POST", "/script/read"]:
+			return godot_api.read_script(body)
+		
+		["POST", "/script/modify"]:
+			return godot_api.modify_script(body)
+		
+		["POST", "/script/delete"]:
+			return godot_api.delete_script(body)
 		
 		_:
 			return {"status": 404, "body": "Not Found"}
