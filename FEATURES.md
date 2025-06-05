@@ -24,13 +24,19 @@
 ### ✅ **Scene Management Tools** (IMPLEMENTED)
 
 #### `create_scene`
-- **Functionality**: Create new Godot scenes programmatically
-- **Parameters**: `name` (required), `path` (optional)
+- **Functionality**: Create new Godot scenes programmatically with configurable root node types
+- **Parameters**: `name` (required), `path` (optional), `root_node_type` (optional), `create_directories` (optional)
+- **Root Node Types**: Node2D (2D games), Node3D (3D games), Control (UI), Node (generic)
 - **Features**: 
-  - Automatic directory creation (`res://scenes/`)
-  - Default scene structure with root node
-  - Auto-open created scene in editor
-- **Error Handling**: File system errors, save failures
+  - **Smart Root Node Selection**: Prompts user to specify appropriate root node type when not provided
+  - **Intelligent Directory Creation**: Validates directory existence and prompts for creation permission
+  - **Recursive Directory Support**: Creates nested directory structures (e.g., `res://levels/world1/area2/`)
+  - **Auto-open created scene in editor**: Scene immediately opens after creation
+- **User Experience**: 
+  - Interactive prompting for missing parameters
+  - Clear feedback on directory creation
+  - Prevents silent failures with descriptive error messages
+- **Error Handling**: File system errors, save failures, invalid paths, permission issues
 
 #### `open_scene` 
 - **Functionality**: Open existing scene files
@@ -106,6 +112,22 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 3. **HTTP Client** → Python requests to Godot plugin
 4. **Godot Plugin** → GDScript HTTP server in editor
 5. **Godot Editor** → Direct EditorInterface manipulation
+
+---
+
+## 🆕 **Recent Enhancements** (Latest Updates)
+
+### ✅ **Enhanced Scene Creation** (2025-06-05)
+- **Root Node Type Selection**: Users must specify Node2D, Node3D, Control, or Node when creating scenes
+- **Interactive Directory Creation**: System prompts users when target directories don't exist
+- **Nested Path Support**: Automatically creates complex directory hierarchies like `res://levels/world1/bosses/`
+- **Improved User Experience**: Clear prompts and feedback prevent confusion and silent failures
+
+### ✅ **Smart Validation System** (2025-06-05)
+- **Parameter Validation**: Tools now validate required parameters and prompt for missing values
+- **Directory Existence Checking**: Proactive validation before scene creation attempts
+- **User Choice Prompting**: Clear options when directories need to be created
+- **Enhanced Error Messages**: Detailed feedback on what went wrong and how to fix it
 
 ---
 

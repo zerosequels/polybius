@@ -17,13 +17,15 @@ class GodotClient:
         except Exception as e:
             return {"error": str(e), "connected": False}
     
-    async def create_scene(self, name: str, path: Optional[str] = None, root_node_type: Optional[str] = None) -> Dict[str, Any]:
+    async def create_scene(self, name: str, path: Optional[str] = None, root_node_type: Optional[str] = None, create_directories: Optional[bool] = None) -> Dict[str, Any]:
         """Create a new scene in Godot"""
         data = {"name": name}
         if path:
             data["path"] = path
         if root_node_type:
             data["root_node_type"] = root_node_type
+        if create_directories is not None:
+            data["create_directories"] = create_directories
         
         try:
             response = await self.client.post(f"{self.base_url}/scene/create", json=data)

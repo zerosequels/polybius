@@ -6,11 +6,36 @@ func create_scene(params: Dictionary) -> Dictionary:
 	var scene_name = params.get("name", "NewScene")
 	var scene_path = params.get("path", "res://scenes/%s.tscn" % scene_name)
 	var root_node_type = params.get("root_node_type", "Node")
+	var create_directories = params.get("create_directories", false)
 	
-	# Ensure directory exists
+	# Get directory from path and validate/create if needed
+	var directory_path = scene_path.get_base_dir()
 	var dir = DirAccess.open("res://")
-	if not dir.dir_exists("scenes"):
-		dir.make_dir("scenes")
+	var directory_created = ""
+	
+	# Check if directory exists
+	if not dir.dir_exists(directory_path.replace("res://", "")):
+		if create_directories:
+			# Create directory hierarchy
+			var make_dir_error = dir.make_dir_recursive(directory_path.replace("res://", ""))
+			if make_dir_error != OK:
+				return {
+					"status": 500,
+					"body": {
+						"success": false,
+						"error": "Failed to create directory '" + directory_path + "': " + str(make_dir_error)
+					}
+				}
+			directory_created = directory_path
+		else:
+			# Directory doesn't exist and we're not creating it
+			return {
+				"status": 400,
+				"body": {
+					"success": false,
+					"error": "Directory does not exist: " + directory_path + ". Use create_directories parameter to create it."
+				}
+			}
 	
 	var scene = PackedScene.new()
 	var root_node = _create_node_by_type(root_node_type)
@@ -30,14 +55,18 @@ func create_scene(params: Dictionary) -> Dictionary:
 	var error = ResourceSaver.save(scene, scene_path)
 	if error == OK:
 		EditorInterface.open_scene_from_path(scene_path)
+		var response_body = {
+			"success": true,
+			"scene_path": scene_path,
+			"root_node_type": root_node_type,
+			"message": "Scene created successfully"
+		}
+		if directory_created:
+			response_body["directory_created"] = directory_created
+		
 		return {
 			"status": 200,
-			"body": {
-				"success": true,
-				"scene_path": scene_path,
-				"root_node_type": root_node_type,
-				"message": "Scene created successfully"
-			}
+			"body": response_body
 		}
 	else:
 		return {

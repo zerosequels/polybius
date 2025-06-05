@@ -30,27 +30,48 @@
 **Expected Outcome:**
 - ✅ Message: "No scene currently open" OR current scene details if one exists
 
-### Test: Create New Scene
+### Test: Create New Scene (with Root Node Type Prompting)
 **Prompt:** `Create a new scene called "TestLevel"`
 
 **Expected Outcome:**
-- ✅ Message: "Scene 'TestLevel' created successfully at res://scenes/TestLevel.tscn"
-- ✅ Scene opens in Godot editor
+- ✅ Prompt: "Please specify what type of scene you want to create for 'TestLevel':" with options (Node2D, Node3D, Control, Node)
+- ✅ Follow-up required: "Create a 2D scene called 'TestLevel' with Node2D root"
+- ✅ Message: "Scene 'TestLevel' created successfully at res://scenes/TestLevel.tscn with Node2D root node"
+- ✅ Scene opens in Godot editor with Node2D root
 - ✅ File appears in Godot FileSystem dock
 
-### Test: Create Scene with Custom Path
+### Test: Create Scene with Specified Root Type
+**Prompt:** `Create a 3D scene called "WorldLevel" with Node3D root`
+
+**Expected Outcome:**
+- ✅ Message: "Scene 'WorldLevel' created successfully at res://scenes/WorldLevel.tscn with Node3D root node"
+- ✅ Scene opens in Godot editor with Node3D root
+- ✅ File appears in Godot FileSystem dock
+
+### Test: Create Scene with Custom Path (Directory Creation)
 **Prompt:** `Create a scene named "MainMenu" at the path "res://ui/MainMenu.tscn"`
 
 **Expected Outcome:**
-- ✅ Message: "Scene 'MainMenu' created successfully at res://ui/MainMenu.tscn"
+- ✅ Prompt for root node type first (if not specified)
+- ✅ Directory existence check: "Directory 'res://ui/' doesn't exist for scene 'MainMenu.tscn'. Would you like me to: Create the directory and proceed..."
+- ✅ Follow-up required: "Create a Control scene called 'MainMenu' at 'res://ui/MainMenu.tscn' and create directories"
+- ✅ Message: "Scene 'MainMenu' created successfully at res://ui/MainMenu.tscn with Control root node (created directory: res://ui)"
 - ✅ `ui/` directory created automatically
+- ✅ Scene opens in Godot editor
+
+### Test: Create Scene with Deep Directory Path
+**Prompt:** `Create a Node2D scene called "Boss" at "res://levels/world1/bosses/Boss.tscn" and create directories`
+
+**Expected Outcome:**
+- ✅ Message: "Scene 'Boss' created successfully at res://levels/world1/bosses/Boss.tscn with Node2D root node (created directory: res://levels/world1/bosses)"
+- ✅ Nested directory structure created automatically
 - ✅ Scene opens in Godot editor
 
 ### Test: Get Current Scene (With Scene Open)
 **Prompt:** `What scene is currently open now?`
 
 **Expected Outcome:**
-- ✅ Scene name, path, type (Node), and child count displayed
+- ✅ Scene name, path, correct root node type (Node2D, Node3D, etc.), and child count displayed
 - ✅ Should match the scene you just created
 
 ### Test: Open Existing Scene
@@ -200,20 +221,21 @@ func add_score(points):
 
 ### Creative Workflows
 - `Help me create a basic 2D platformer player character with movement script`
-- `Set up a main menu scene with start and quit buttons`
-- `Create a simple enemy with basic AI behavior script`
-- `Build a collectible item with pickup functionality`
+- `Set up a main menu scene with start and quit buttons in the ui folder`
+- `Create a simple enemy with basic AI behavior script in the enemies directory`
+- `Build a collectible item with pickup functionality in a dedicated items folder`
 
 ### Advanced Combinations
 - `Create a game manager that tracks score and handles level transitions`
-- `Set up a player health system with UI display`
-- `Create a dialogue system with text display and progression`
-- `Build a simple inventory system for a 2D game`
+- `Set up a player health system with UI display in the ui/hud directory`
+- `Create a dialogue system with text display and progression in ui/dialogue`
+- `Build a simple inventory system for a 2D game in systems/inventory`
 
 ### Project Organization
-- `Organize my project: create folders for scenes, scripts, sprites, and audio`
-- `Set up a clean project structure for a puzzle game`
-- `Create template scenes for different game object types`
+- `Organize my project: create 2D scenes for player, enemies, and UI in separate folders`
+- `Set up a clean project structure for a puzzle game with levels in levels/ and UI in ui/`
+- `Create template 3D scenes for different game object types in templates/3d/`
+- `Build a UI scene for settings menu at ui/menus/SettingsMenu.tscn and create directories`
 
 ### Debugging & Inspection
 - `Show me the current scene structure and all nodes`

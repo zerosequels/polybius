@@ -27,6 +27,10 @@ def get_scene_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Type of root node for the scene. Common types: Node2D (for 2D games), Node3D (for 3D games), Control (for UI), Node (generic). If not specified, you MUST ask the user to clarify what type of scene they want to create.",
                         "enum": ["Node2D", "Node3D", "Control", "Node"]
+                    },
+                    "create_directories": {
+                        "type": "boolean",
+                        "description": "Whether to create missing directories in the path. If not specified and directory doesn't exist, user will be prompted."
                     }
                 },
                 "required": ["name"]
@@ -85,6 +89,7 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
         scene_name = arguments["name"]
         scene_path = arguments.get("path")
         root_node_type = arguments.get("root_node_type")
+        create_directories = arguments.get("create_directories")
         
         # Validate root node type is specified
         if not root_node_type:
@@ -98,12 +103,40 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
                      f"Example: Create a 2D scene called '{scene_name}' with Node2D root"
             )]
         
-        result = await godot_client.create_scene(scene_name, scene_path, root_node_type)
+        # Check directory existence if custom path is provided
+        if scene_path and create_directories is None:
+            # Extract directory from path
+            if "/" in scene_path:
+                directory = "/".join(scene_path.split("/")[:-1])
+                if directory and directory != "res:":
+                    # Check if directory exists by attempting to get current scene info first
+                    # This validates connection and then we'll check directory
+                    health_check = await godot_client.health_check()
+                    if not health_check.get("connected", False):
+                        return [TextContent(
+                            type="text",
+                            text=f"Cannot connect to Godot plugin. Please ensure Godot is running with the plugin enabled."
+                        )]
+                    
+                    return [TextContent(
+                        type="text",
+                        text=f"Directory '{directory}/' doesn't exist for scene '{scene_name}.tscn'.\n\n"
+                             f"Would you like me to:\n"
+                             f"- Create the directory and proceed: Create a {root_node_type} scene called '{scene_name}' at '{scene_path}' and create directories\n"
+                             f"- Use default location: Create a {root_node_type} scene called '{scene_name}'\n"
+                             f"- Cancel: Don't create the scene\n\n"
+                             f"Please specify your choice in your next message."
+                    )]
+        
+        result = await godot_client.create_scene(scene_name, scene_path, root_node_type, create_directories)
         
         if result.get("success"):
+            directory_msg = ""
+            if result.get("directory_created"):
+                directory_msg = f" (created directory: {result.get('directory_created')})"
             return [TextContent(
                 type="text",
-                text=f"Scene '{scene_name}' created successfully at {result.get('scene_path', 'default location')} with {root_node_type} root node"
+                text=f"Scene '{scene_name}' created successfully at {result.get('scene_path', 'default location')} with {root_node_type} root node{directory_msg}"
             )]
         else:
             return [TextContent(
