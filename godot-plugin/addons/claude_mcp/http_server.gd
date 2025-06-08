@@ -68,7 +68,21 @@ func process_request(request: String) -> Dictionary:
 		return {"status": 400, "body": "Bad Request"}
 	
 	var method = parts[0]
-	var path = parts[1]
+	var path_with_query = parts[1]
+	
+	# Separate path and query parameters
+	var path = path_with_query
+	var query_params = {}
+	if "?" in path_with_query:
+		var path_parts = path_with_query.split("?", false, 1)
+		path = path_parts[0]
+		if path_parts.size() > 1:
+			var query_string = path_parts[1]
+			var param_pairs = query_string.split("&")
+			for pair in param_pairs:
+				var kv = pair.split("=", false, 1)
+				if kv.size() == 2:
+					query_params[kv[0]] = kv[1].uri_decode()
 	
 	# Extract JSON body for POST requests
 	var body_json = {}
@@ -80,6 +94,10 @@ func process_request(request: String) -> Dictionary:
 			var parse_result = json.parse(body)
 			if parse_result == OK:
 				body_json = json.data
+	
+	# Merge query params into body for GET requests
+	if method == "GET" and query_params.size() > 0:
+		body_json = query_params
 	
 	return route_request(method, path, body_json)
 
@@ -237,15 +255,7 @@ func clear_error_log() -> Dictionary:
 
 # Wrapper function for API calls to catch and log errors
 func safe_api_call(api_function: Callable, params: Dictionary) -> Dictionary:
-	try:
-		return api_function.call(params)
-	except:
-		var error_msg = "API call failed: " + str(api_function)
-		log_error("API_ERROR", error_msg, "http_server")
-		return {
-			"status": 500,
-			"body": {
-				"success": false,
-				"error": error_msg
-			}
-		}
+	# Note: GDScript doesn't have try/catch - errors handled at call site
+	var error_msg = "API call wrapper: " + str(api_function)
+	log_error("API_CALL", error_msg, "http_server")
+	return api_function.call(params)

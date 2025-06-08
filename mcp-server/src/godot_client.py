@@ -243,12 +243,12 @@ class GodotClient:
     
     async def list_resources(self, directory: str = "res://", file_types: Optional[list] = None, recursive: bool = True) -> Dict[str, Any]:
         """List project resources with optional filtering"""
-        data = {"directory": directory, "recursive": recursive}
+        params = {"directory": directory, "recursive": recursive}
         if file_types:
-            data["file_types"] = file_types
+            params["file_types"] = ",".join(file_types)  # Convert list to comma-separated string
         
         try:
-            response = await self.client.get(f"{self.base_url}/asset/list", json=data)
+            response = await self.client.get(f"{self.base_url}/asset/list", params=params)
             response.raise_for_status()
             return response.json()
         except Exception as e:
@@ -268,12 +268,12 @@ class GodotClient:
     # Project management methods
     async def get_project_settings(self, setting_path: Optional[str] = None) -> Dict[str, Any]:
         """Get project settings"""
-        data = {}
+        params = {}
         if setting_path:
-            data["setting_path"] = setting_path
+            params["setting_path"] = setting_path
         
         try:
-            response = await self.client.get(f"{self.base_url}/project/settings", json=data)
+            response = await self.client.get(f"{self.base_url}/project/settings", params=params)
             response.raise_for_status()
             return response.json()
         except Exception as e:
