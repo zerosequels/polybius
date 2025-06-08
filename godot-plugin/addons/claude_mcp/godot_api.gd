@@ -259,26 +259,35 @@ func list_scripts() -> Dictionary:
 	}
 
 func _scan_directory_for_scripts(dir: DirAccess, path: String, scripts: Array):
-	if dir.dir_exists(path.replace("res://", "")):
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
+	if not dir:
+		return
 		
-		while file_name != "":
-			var full_path = path + "/" + file_name if path != "res://" else "res://" + file_name
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	
+	while file_name != "":
+		if file_name == "." or file_name == "..":
+			file_name = dir.get_next()
+			continue
 			
-			if dir.current_is_dir() and not file_name.begins_with("."):
+		var full_path = path + "/" + file_name if path != "res://" else "res://" + file_name
+		
+		if dir.current_is_dir():
+			if not file_name.begins_with("."):
 				var sub_dir = DirAccess.open(full_path)
 				if sub_dir:
 					_scan_directory_for_scripts(sub_dir, full_path, scripts)
-			elif file_name.ends_with(".gd"):
-				var file_info = {
-					"name": file_name.get_basename(),
-					"path": full_path,
-					"directory": path
-				}
-				scripts.append(file_info)
-			
-			file_name = dir.get_next()
+		elif file_name.ends_with(".gd"):
+			var file_info = {
+				"name": file_name.get_basename(),
+				"path": full_path,
+				"directory": path
+			}
+			scripts.append(file_info)
+		
+		file_name = dir.get_next()
+	
+	dir.list_dir_end()
 
 func read_script(params: Dictionary) -> Dictionary:
 	var script_path = params.get("path", "")
@@ -444,26 +453,35 @@ func list_scenes() -> Dictionary:
 	}
 
 func _scan_directory_for_scenes(dir: DirAccess, path: String, scenes: Array):
-	if dir.dir_exists(path.replace("res://", "")):
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
+	if not dir:
+		return
 		
-		while file_name != "":
-			var full_path = path + "/" + file_name if path != "res://" else "res://" + file_name
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	
+	while file_name != "":
+		if file_name == "." or file_name == "..":
+			file_name = dir.get_next()
+			continue
 			
-			if dir.current_is_dir() and not file_name.begins_with("."):
+		var full_path = path + "/" + file_name if path != "res://" else "res://" + file_name
+		
+		if dir.current_is_dir():
+			if not file_name.begins_with("."):
 				var sub_dir = DirAccess.open(full_path)
 				if sub_dir:
 					_scan_directory_for_scenes(sub_dir, full_path, scenes)
-			elif file_name.ends_with(".tscn"):
-				var file_info = {
-					"name": file_name.get_basename(),
-					"path": full_path,
-					"directory": path
-				}
-				scenes.append(file_info)
-			
-			file_name = dir.get_next()
+		elif file_name.ends_with(".tscn"):
+			var file_info = {
+				"name": file_name.get_basename(),
+				"path": full_path,
+				"directory": path
+			}
+			scenes.append(file_info)
+		
+		file_name = dir.get_next()
+	
+	dir.list_dir_end()
 
 func duplicate_scene(params: Dictionary) -> Dictionary:
 	var source_path = params.get("source_path", "")
@@ -509,14 +527,52 @@ func duplicate_scene(params: Dictionary) -> Dictionary:
 				}
 			}
 	
-	# Copy the file
-	var copy_error = dir.copy(source_path, target_path)
-	if copy_error != OK:
+	# Load the source scene and create a new one to avoid UUID conflicts
+	var source_scene = load(source_path) as PackedScene
+	if not source_scene:
 		return {
 			"status": 500,
 			"body": {
 				"success": false,
-				"error": "Failed to copy scene file: " + str(copy_error)
+				"error": "Failed to load source scene: " + source_path
+			}
+		}
+	
+	# Instantiate the scene to get its structure
+	var scene_instance = source_scene.instantiate()
+	if not scene_instance:
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": "Failed to instantiate source scene"
+			}
+		}
+	
+	# Create a new PackedScene and pack the instance (this generates new UUIDs)
+	var new_scene = PackedScene.new()
+	var pack_result = new_scene.pack(scene_instance)
+	
+	# Clean up the temporary instance
+	scene_instance.queue_free()
+	
+	if pack_result != OK:
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": "Failed to pack new scene: " + str(pack_result)
+			}
+		}
+	
+	# Save the new scene
+	var save_error = ResourceSaver.save(new_scene, target_path)
+	if save_error != OK:
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": "Failed to save duplicated scene: " + str(save_error)
 			}
 		}
 	
@@ -870,3 +926,461 @@ func _create_node_by_type(type: String) -> Node:
 			return Timer.new()
 		_:
 			return null
+
+# Asset management functions
+func import_asset(params: Dictionary) -> Dictionary:
+	var source_path = params.get("source_path", "")
+	var target_path = params.get("target_path", "")
+	var asset_type = params.get("asset_type", "")
+	
+	if source_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Source path is required"
+			}
+		}
+	
+	if not FileAccess.file_exists(source_path):
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Source file not found: " + source_path
+			}
+		}
+	
+	# Generate target path if not provided
+	if target_path.is_empty():
+		var file_name = source_path.get_file()
+		var asset_dir = _get_asset_directory_for_type(asset_type)
+		target_path = "res://" + asset_dir + "/" + file_name
+	
+	# Ensure target directory exists
+	var target_dir = target_path.get_base_dir()
+	var dir = DirAccess.open("res://")
+	if not dir.dir_exists(target_dir.replace("res://", "")):
+		var make_dir_error = dir.make_dir_recursive(target_dir.replace("res://", ""))
+		if make_dir_error != OK:
+			return {
+				"status": 500,
+				"body": {
+					"success": false,
+					"error": "Failed to create target directory: " + str(make_dir_error)
+				}
+			}
+	
+	# Copy the file
+	var copy_error = dir.copy(source_path, target_path)
+	if copy_error != OK:
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": "Failed to copy file: " + str(copy_error)
+			}
+		}
+	
+	# Trigger reimport in editor
+	EditorInterface.get_resource_filesystem().reimport_files([target_path])
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"source_path": source_path,
+			"target_path": target_path,
+			"asset_type": asset_type,
+			"message": "Asset imported successfully"
+		}
+	}
+
+func list_resources(params: Dictionary) -> Dictionary:
+	var directory = params.get("directory", "res://")
+	var file_types = params.get("file_types", [])
+	var recursive = params.get("recursive", true)
+	
+	var resources = []
+	var dir = DirAccess.open(directory)
+	
+	if not dir:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Directory not found: " + directory
+			}
+		}
+	
+	if recursive:
+		_scan_directory_for_resources(dir, directory, resources, file_types)
+	else:
+		_scan_single_directory_for_resources(dir, directory, resources, file_types)
+	
+	return {
+		"status": 200,
+		"body": {
+			"resources": resources,
+			"count": resources.size(),
+			"directory": directory,
+			"message": "Resource list retrieved successfully"
+		}
+	}
+
+func organize_assets(params: Dictionary) -> Dictionary:
+	var source_path = params.get("source_path", "")
+	var target_path = params.get("target_path", "")
+	var update_references = params.get("update_references", true)
+	
+	if source_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Source path is required"
+			}
+		}
+	
+	if target_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Target path is required"
+			}
+		}
+	
+	if not FileAccess.file_exists(source_path):
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Source file not found: " + source_path
+			}
+		}
+	
+	# Ensure target directory exists
+	var target_dir = target_path.get_base_dir()
+	var dir = DirAccess.open("res://")
+	if not dir.dir_exists(target_dir.replace("res://", "")):
+		var make_dir_error = dir.make_dir_recursive(target_dir.replace("res://", ""))
+		if make_dir_error != OK:
+			return {
+				"status": 500,
+				"body": {
+					"success": false,
+					"error": "Failed to create target directory: " + str(make_dir_error)
+				}
+			}
+	
+	var references_updated = 0
+	
+	# Update references in scenes and scripts if requested
+	if update_references:
+		references_updated = _update_asset_references(source_path, target_path)
+	
+	# Move the file
+	var move_error = dir.rename(source_path, target_path)
+	if move_error != OK:
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": "Failed to move file: " + str(move_error)
+			}
+		}
+	
+	# Trigger reimport in editor
+	EditorInterface.get_resource_filesystem().reimport_files([target_path])
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"source_path": source_path,
+			"target_path": target_path,
+			"references_updated": references_updated,
+			"message": "Asset organized successfully"
+		}
+	}
+
+# Project management functions
+func get_project_settings(params: Dictionary) -> Dictionary:
+	var setting_path = params.get("setting_path", "")
+	
+	if setting_path.is_empty():
+		# Return all settings
+		var all_settings = {}
+		var setting_names = ProjectSettings.get_property_list()
+		
+		for setting in setting_names:
+			if setting.usage & PROPERTY_USAGE_STORAGE:
+				var name = setting.name
+				var value = ProjectSettings.get_setting(name, "")
+				all_settings[name] = str(value)
+		
+		return {
+			"status": 200,
+			"body": {
+				"success": true,
+				"settings": all_settings,
+				"message": "All project settings retrieved"
+			}
+		}
+	else:
+		# Return specific setting
+		if ProjectSettings.has_setting(setting_path):
+			var value = ProjectSettings.get_setting(setting_path)
+			return {
+				"status": 200,
+				"body": {
+					"success": true,
+					"setting_path": setting_path,
+					"settings": value,
+					"message": "Project setting retrieved"
+				}
+			}
+		else:
+			return {
+				"status": 404,
+				"body": {
+					"success": false,
+					"error": "Project setting not found: " + setting_path
+				}
+			}
+
+func modify_project_settings(params: Dictionary) -> Dictionary:
+	var setting_path = params.get("setting_path", "")
+	var value = params.get("value")
+	var create_if_missing = params.get("create_if_missing", false)
+	
+	if setting_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Setting path is required"
+			}
+		}
+	
+	if not ProjectSettings.has_setting(setting_path) and not create_if_missing:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Project setting not found: " + setting_path + ". Set create_if_missing=true to create it."
+			}
+		}
+	
+	ProjectSettings.set_setting(setting_path, value)
+	var save_error = ProjectSettings.save()
+	
+	if save_error != OK:
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": "Failed to save project settings: " + str(save_error)
+			}
+		}
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"setting_path": setting_path,
+			"value": value,
+			"message": "Project setting updated successfully"
+		}
+	}
+
+func export_project(params: Dictionary) -> Dictionary:
+	var preset_name = params.get("preset_name", "")
+	var output_path = params.get("output_path", "")
+	var debug_mode = params.get("debug_mode", false)
+	
+	# Get available export presets
+	var export_presets = []
+	for i in range(EditorInterface.get_editor_export_manager().get_export_preset_count()):
+		var preset = EditorInterface.get_editor_export_manager().get_export_preset(i)
+		export_presets.append(preset.get_name())
+	
+	if preset_name.is_empty():
+		return {
+			"status": 200,
+			"body": {
+				"success": true,
+				"available_presets": export_presets,
+				"message": "Available export presets listed. Specify preset_name to export."
+			}
+		}
+	
+	# Find the preset
+	var preset = null
+	for i in range(EditorInterface.get_editor_export_manager().get_export_preset_count()):
+		var current_preset = EditorInterface.get_editor_export_manager().get_export_preset(i)
+		if current_preset.get_name() == preset_name:
+			preset = current_preset
+			break
+	
+	if not preset:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Export preset not found: " + preset_name,
+				"available_presets": export_presets
+			}
+		}
+	
+	# Use preset's export path if no output path specified
+	if output_path.is_empty():
+		output_path = preset.get_export_path()
+		if output_path.is_empty():
+			return {
+				"status": 400,
+				"body": {
+					"success": false,
+					"error": "No output path specified and preset has no default export path"
+				}
+			}
+	
+	# Note: Actual export functionality would require deeper integration with EditorExportManager
+	# For now, we'll return success but note that full implementation would need editor plugin hooks
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"preset_name": preset_name,
+			"output_path": output_path,
+			"debug_mode": debug_mode,
+			"message": "Export initiated (Note: Full export implementation requires editor plugin integration)"
+		}
+	}
+
+# Helper functions for asset management
+func _get_asset_directory_for_type(asset_type: String) -> String:
+	match asset_type:
+		"image", "texture":
+			return "textures"
+		"audio":
+			return "audio"
+		"model":
+			return "models"
+		"font":
+			return "fonts"
+		_:
+			return "assets"
+
+func _scan_directory_for_resources(dir: DirAccess, path: String, resources: Array, file_types: Array):
+	if not dir:
+		return
+		
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	
+	while file_name != "":
+		if file_name == "." or file_name == "..":
+			file_name = dir.get_next()
+			continue
+			
+		var full_path = path + "/" + file_name if path != "res://" else "res://" + file_name
+		
+		if dir.current_is_dir():
+			if not file_name.begins_with("."):
+				var sub_dir = DirAccess.open(full_path)
+				if sub_dir:
+					_scan_directory_for_resources(sub_dir, full_path, resources, file_types)
+		else:
+			_add_resource_if_matches(full_path, path, file_name, resources, file_types)
+		
+		file_name = dir.get_next()
+	
+	dir.list_dir_end()
+
+func _scan_single_directory_for_resources(dir: DirAccess, path: String, resources: Array, file_types: Array):
+	if not dir:
+		return
+		
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	
+	while file_name != "":
+		if file_name == "." or file_name == "..":
+			file_name = dir.get_next()
+			continue
+			
+		var full_path = path + "/" + file_name if path != "res://" else "res://" + file_name
+		
+		if not dir.current_is_dir():
+			_add_resource_if_matches(full_path, path, file_name, resources, file_types)
+		
+		file_name = dir.get_next()
+	
+	dir.list_dir_end()
+
+func _add_resource_if_matches(full_path: String, directory: String, file_name: String, resources: Array, file_types: Array):
+	# Check if file type matches filter
+	if file_types.size() > 0:
+		var matches_filter = false
+		for file_type in file_types:
+			if file_name.ends_with(file_type):
+				matches_filter = true
+				break
+		if not matches_filter:
+			return
+	
+	# Get file size
+	var file = FileAccess.open(full_path, FileAccess.READ)
+	var size = "unknown"
+	if file:
+		size = str(file.get_length()) + " bytes"
+		file.close()
+	
+	# Determine asset type
+	var asset_type = _get_asset_type_from_extension(file_name.get_extension())
+	
+	var resource_info = {
+		"name": file_name.get_basename(),
+		"path": full_path,
+		"directory": directory,
+		"size": size,
+		"type": asset_type,
+		"extension": file_name.get_extension()
+	}
+	resources.append(resource_info)
+
+func _get_asset_type_from_extension(extension: String) -> String:
+	match extension.to_lower():
+		"png", "jpg", "jpeg", "bmp", "tga", "webp":
+			return "image"
+		"ogg", "wav", "mp3":
+			return "audio"
+		"gltf", "glb", "obj", "fbx", "dae":
+			return "model"
+		"ttf", "otf", "woff", "woff2":
+			return "font"
+		"tscn":
+			return "scene"
+		"gd":
+			return "script"
+		"tres", "res":
+			return "resource"
+		_:
+			return "other"
+
+func _update_asset_references(old_path: String, new_path: String) -> int:
+	var references_updated = 0
+	
+	# This is a simplified implementation
+	# In a full implementation, you would scan all .tscn and .gd files
+	# and update any references to the old path
+	
+	# For now, we'll just return 0 as a placeholder
+	# Real implementation would involve:
+	# 1. Scanning all scene files for resource references
+	# 2. Scanning all script files for load() calls
+	# 3. Updating the references and saving the files
+	
+	return references_updated

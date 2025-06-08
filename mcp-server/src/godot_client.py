@@ -209,6 +209,102 @@ class GodotClient:
         except Exception as e:
             return {"error": str(e), "success": False}
 
+    async def get_errors(self) -> Dict[str, Any]:
+        """Get error log from Godot plugin"""
+        try:
+            response = await self.client.get(f"{self.base_url}/errors")
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "errors": []}
+    
+    async def clear_errors(self) -> Dict[str, Any]:
+        """Clear error log from Godot plugin"""
+        try:
+            response = await self.client.post(f"{self.base_url}/errors/clear")
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
+    # Asset management methods
+    async def import_asset(self, source_path: str, target_path: Optional[str] = None, asset_type: str = "other") -> Dict[str, Any]:
+        """Import an external asset into the project"""
+        data = {"source_path": source_path, "asset_type": asset_type}
+        if target_path:
+            data["target_path"] = target_path
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/asset/import", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def list_resources(self, directory: str = "res://", file_types: Optional[list] = None, recursive: bool = True) -> Dict[str, Any]:
+        """List project resources with optional filtering"""
+        data = {"directory": directory, "recursive": recursive}
+        if file_types:
+            data["file_types"] = file_types
+        
+        try:
+            response = await self.client.get(f"{self.base_url}/asset/list", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "resources": []}
+    
+    async def organize_assets(self, source_path: str, target_path: str, update_references: bool = True) -> Dict[str, Any]:
+        """Move or rename asset files with reference updates"""
+        data = {"source_path": source_path, "target_path": target_path, "update_references": update_references}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/asset/organize", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    # Project management methods
+    async def get_project_settings(self, setting_path: Optional[str] = None) -> Dict[str, Any]:
+        """Get project settings"""
+        data = {}
+        if setting_path:
+            data["setting_path"] = setting_path
+        
+        try:
+            response = await self.client.get(f"{self.base_url}/project/settings", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def modify_project_settings(self, setting_path: str, value: Any, create_if_missing: bool = False) -> Dict[str, Any]:
+        """Modify project settings"""
+        data = {"setting_path": setting_path, "value": value, "create_if_missing": create_if_missing}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/project/settings", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def export_project(self, preset_name: Optional[str] = None, output_path: Optional[str] = None, debug_mode: bool = False) -> Dict[str, Any]:
+        """Export project using specified preset"""
+        data = {"debug_mode": debug_mode}
+        if preset_name:
+            data["preset_name"] = preset_name
+        if output_path:
+            data["output_path"] = output_path
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/project/export", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
     async def close(self):
         """Close the HTTP client"""
         await self.client.aclose()

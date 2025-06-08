@@ -1,7 +1,7 @@
 # Polybius Example Prompts & Testing Guide
 
 > **Purpose:** End-to-end integration testing prompts for Claude Desktop ↔ MCP Server ↔ Godot Plugin  
-> **Last Updated:** 2025-06-03  
+> **Last Updated:** 2025-06-08 (Phase 2: Asset Management Added)  
 > **Prerequisites:** Godot running with Claude MCP plugin enabled, Claude Desktop connected
 
 ## 🏥 **1. Health & Connectivity Tests**
@@ -17,10 +17,12 @@
 **Prompt:** `What Godot tools are available to me?`
 
 **Expected Outcome:**
-- ✅ List showing 15 tools including new Phase 1 tools
+- ✅ List showing 21 tools including new Phase 2 tools
 - ✅ Scene tools: `create_scene`, `open_scene`, `get_current_scene`, `list_scenes`, `duplicate_scene`, `delete_scene`
 - ✅ Node tools: `add_node`, `delete_node`, `move_node`, `get_node_properties`, `set_node_properties`
 - ✅ Script tools: `create_script`, `list_scripts`, `read_script`, `modify_script`, `delete_script`
+- ✅ Asset tools: `import_asset`, `list_resources`, `organize_assets` 🆕 PHASE 2
+- ✅ Project tools: `get_project_settings`, `modify_project_settings`, `export_project` 🆕 PHASE 2
 - ✅ Health tool: `godot_health_check`
 - ✅ Each tool shows description and parameters
 
@@ -291,7 +293,114 @@ func add_score(points):
 
 ---
 
-## ⚠️ **6. Error Handling Tests**
+## 💎 **5. Asset Management Tests** 🆕 PHASE 2
+
+### Test: Import Image Asset
+**Prompt:** `Import the image file at "/Users/username/Desktop/player_sprite.png" as an image asset`
+
+**Expected Outcome:**
+- ✅ Message: "Asset imported successfully from /Users/username/Desktop/player_sprite.png to res://textures/player_sprite.png"
+- ✅ File appears in Godot FileSystem dock under textures/ directory
+- ✅ Asset automatically reimported in Godot editor
+
+### Test: Import Audio Asset with Custom Path
+**Prompt:** `Import the audio file at "/Users/username/Downloads/music.ogg" to "res://audio/background/music.ogg" as an audio asset`
+
+**Expected Outcome:**
+- ✅ Message: "Asset imported successfully from /Users/username/Downloads/music.ogg to res://audio/background/music.ogg"
+- ✅ Directory structure created automatically (audio/background/)
+- ✅ File appears in correct location in FileSystem dock
+
+### Test: List All Resources
+**Prompt:** `List all resources in the project`
+
+**Expected Outcome:**
+- ✅ Message: "Found X resource(s) in res://:" followed by detailed list
+- ✅ Each resource shows name, path, directory, size, type, and extension
+- ✅ Includes all assets: scenes (.tscn), scripts (.gd), textures (.png, .jpg), audio (.ogg, .wav), etc.
+- ✅ Proper file size display (e.g., "2048 bytes", "15.2 KB")
+
+### Test: List Resources with Filtering
+**Prompt:** `List all image resources in the textures directory`
+
+**Expected Outcome:**
+- ✅ Message showing filtered results for textures/ directory
+- ✅ Only image files displayed (.png, .jpg, .jpeg, .bmp, .tga, .webp)
+- ✅ Correct type classification as "image"
+
+### Test: Organize Assets
+**Prompt:** `Move the file "res://player_sprite.png" to "res://characters/player/sprite.png" and update references`
+
+**Expected Outcome:**
+- ✅ Message: "Asset organized successfully from res://player_sprite.png to res://characters/player/sprite.png"
+- ✅ Directory structure created (characters/player/)
+- ✅ File moved to new location in FileSystem dock
+- ✅ Reference update count reported (if any references exist)
+
+### Test: List Resources by Type
+**Prompt:** `List all audio files in the project`
+
+**Expected Outcome:**
+- ✅ Filtered list showing only audio assets
+- ✅ Files show as type "audio" with proper extensions (.ogg, .wav, .mp3)
+- ✅ Recursive scanning includes audio files in subdirectories
+
+---
+
+## 🔧 **6. Project Management Tests** 🆕 PHASE 2
+
+### Test: Get All Project Settings
+**Prompt:** `Get all project settings`
+
+**Expected Outcome:**
+- ✅ Message: "All project settings retrieved" followed by comprehensive list
+- ✅ Settings organized by categories (application/, rendering/, input/, etc.)
+- ✅ Each setting shows full path and current value
+- ✅ Includes core settings like application/config/name, application/config/version
+
+### Test: Get Specific Project Setting
+**Prompt:** `Get the project setting for "application/config/name"`
+
+**Expected Outcome:**
+- ✅ Message: "Project setting retrieved: application/config/name: [ProjectName]"
+- ✅ Shows current project name value
+- ✅ Clean, focused output for single setting
+
+### Test: Modify Project Setting
+**Prompt:** `Set the project setting "application/config/name" to "MyAwesomeGame"`
+
+**Expected Outcome:**
+- ✅ Message: "Project setting updated successfully: application/config/name: MyAwesomeGame"
+- ✅ Project name changed in Godot Project Settings
+- ✅ project.godot file updated automatically
+
+### Test: Create New Project Setting
+**Prompt:** `Create a new project setting "custom/game/difficulty" with value "normal" and allow creation if missing`
+
+**Expected Outcome:**
+- ✅ Message: "Project setting updated successfully: custom/game/difficulty: normal"
+- ✅ New setting visible in Godot Project Settings under custom category
+- ✅ Setting persisted in project.godot file
+
+### Test: List Export Presets
+**Prompt:** `Show available export presets for the project`
+
+**Expected Outcome:**
+- ✅ Message: "Available export presets:" followed by preset list
+- ✅ Shows all configured export presets (e.g., "Windows Desktop", "Linux", "Android")
+- ✅ Clear indication if no presets are configured
+
+### Test: Export Project (if presets available)
+**Prompt:** `Export the project using the "Windows Desktop" preset to "/Users/username/Desktop/MyGame.exe"`
+
+**Expected Outcome:**
+- ✅ Message: "Export initiated (Note: Full export implementation requires editor plugin integration)"
+- ✅ Shows preset name, output path, and debug mode settings
+- ✅ Framework validates preset exists and paths are valid
+
+---
+
+## ⚠️ **7. Error Handling Tests**
 
 ### Test: Invalid Node Type
 **Prompt:** `Add a FakeNodeType called "BadNode" to the scene`
@@ -342,6 +451,34 @@ func add_score(points):
 - ✅ Error message: "Script file not found: res://scripts/nonexistent.gd"
 - ✅ No content displayed
 
+### Test: Import Non-existent Asset 🆕 PHASE 2
+**Prompt:** `Import the image file at "/Users/username/Desktop/nonexistent.png" as an image asset`
+
+**Expected Outcome:**
+- ✅ Error message: "Source file not found: /Users/username/Desktop/nonexistent.png"
+- ✅ No file operations performed
+
+### Test: Organize Non-existent Asset 🆕 PHASE 2
+**Prompt:** `Move the file "res://nonexistent.png" to "res://textures/moved.png"`
+
+**Expected Outcome:**
+- ✅ Error message: "Source file not found: res://nonexistent.png"
+- ✅ No file operations performed
+
+### Test: Get Non-existent Project Setting 🆕 PHASE 2
+**Prompt:** `Get the project setting for "nonexistent/fake/setting"`
+
+**Expected Outcome:**
+- ✅ Error message: "Project setting not found: nonexistent/fake/setting"
+- ✅ No setting value displayed
+
+### Test: Modify Project Setting Without Permission 🆕 PHASE 2
+**Prompt:** `Set the project setting "nonexistent/fake/setting" to "test" without creating if missing`
+
+**Expected Outcome:**
+- ✅ Error message: "Project setting not found: nonexistent/fake/setting. Set create_if_missing=true to create it."
+- ✅ No setting created or modified
+
 ---
 
 ## 🎯 **Success Criteria Summary**
@@ -391,11 +528,14 @@ func add_score(points):
 - `Check if there are any scenes without proper node hierarchies`
 - `Read the content of my main player script to review the code`
 
-### Asset Management ✨ NEW
+### Asset Management ✨ ENHANCED
 - `Duplicate my MainLevel scene to create a TestLevel for experimentation`
 - `Create a backup of my player script before making major changes`
 - `Delete old prototype scenes that are no longer needed`
 - `Move all UI elements under a parent UI node for better organization`
+- `Import my sprite assets from Desktop into the project with proper organization` 🆕 PHASE 2
+- `List all resources in the project to see what assets I have` 🆕 PHASE 2
+- `Organize my texture files into character/, environment/, and ui/ folders` 🆕 PHASE 2
 
 ### Code Management ✨ NEW
 - `Show me all the scripts in my project and their locations`
@@ -408,6 +548,20 @@ func add_score(points):
 - `Reorganize my scene hierarchy to group related objects`
 - `Set the player's spawn position to (100, 200) using node properties`
 - `Duplicate my enemy scene and modify it for a boss variant`
+
+### Project Configuration 🆕 PHASE 2
+- `Show me all my project settings to review the current configuration`
+- `Change the project name to "My Epic Adventure Game"`
+- `Set up custom project settings for my game's difficulty levels`
+- `Configure the project for mobile export with proper settings`
+- `Check what export presets are available for my project`
+
+### Advanced Asset Workflows 🆕 PHASE 2
+- `Import all my character sprites from a folder and organize them properly`
+- `List all audio files to see what sounds I have in the project`
+- `Reorganize my assets: move UI textures to ui/, character sprites to characters/`
+- `Import background music and place it in audio/music/ directory`
+- `Create a clean asset structure for a 2D platformer with organized folders`
 
 ---
 

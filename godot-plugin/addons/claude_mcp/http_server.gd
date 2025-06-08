@@ -6,6 +6,8 @@ var tcp_server: TCPServer
 var port: int = 8080
 var is_running: bool = false
 var godot_api
+var error_log: Array = []
+var max_log_entries: int = 100
 
 func _ready():
 	if not godot_api:
@@ -13,6 +15,9 @@ func _ready():
 		var GodotAPIScript = load(script_path + "/godot_api.gd")
 		godot_api = GodotAPIScript.new()
 		add_child(godot_api)
+	
+	# Set up error capture
+	_setup_error_capture()
 
 func start_server():
 	tcp_server = TCPServer.new()
@@ -142,6 +147,32 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["POST", "/script/delete"]:
 			return godot_api.delete_script(body)
 		
+		# Asset management endpoints
+		["POST", "/asset/import"]:
+			return godot_api.import_asset(body)
+		
+		["GET", "/asset/list"]:
+			return godot_api.list_resources(body)
+		
+		["POST", "/asset/organize"]:
+			return godot_api.organize_assets(body)
+		
+		# Project management endpoints
+		["GET", "/project/settings"]:
+			return godot_api.get_project_settings(body)
+		
+		["POST", "/project/settings"]:
+			return godot_api.modify_project_settings(body)
+		
+		["POST", "/project/export"]:
+			return godot_api.export_project(body)
+		
+		["GET", "/errors"]:
+			return get_error_log()
+		
+		["POST", "/errors/clear"]:
+			return clear_error_log()
+		
 		_:
 			return {"status": 404, "body": "Not Found"}
 
@@ -159,3 +190,62 @@ func send_response(client: StreamPeerTCP, response: Dictionary):
 	headers += "\r\n"
 	
 	client.put_data((headers + json_body).to_utf8_buffer())
+
+func _setup_error_capture():
+	# Connect to Godot's internal error signals if available
+	# Since we can't directly capture all Godot errors, we'll use a print override approach
+	pass
+
+func log_error(error_type: String, message: String, source: String = ""):
+	var timestamp = Time.get_datetime_string_from_system()
+	var error_entry = {
+		"timestamp": timestamp,
+		"type": error_type,
+		"message": message,
+		"source": source
+	}
+	
+	error_log.append(error_entry)
+	
+	# Keep log size manageable
+	if error_log.size() > max_log_entries:
+		error_log.pop_front()
+	
+	print("Claude MCP Error Logged: [%s] %s: %s" % [timestamp, error_type, message])
+
+func get_error_log() -> Dictionary:
+	return {
+		"status": 200,
+		"body": {
+			"errors": error_log,
+			"count": error_log.size(),
+			"message": "Error log retrieved successfully"
+		}
+	}
+
+func clear_error_log() -> Dictionary:
+	var cleared_count = error_log.size()
+	error_log.clear()
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"cleared_count": cleared_count,
+			"message": "Error log cleared successfully"
+		}
+	}
+
+# Wrapper function for API calls to catch and log errors
+func safe_api_call(api_function: Callable, params: Dictionary) -> Dictionary:
+	try:
+		return api_function.call(params)
+	except:
+		var error_msg = "API call failed: " + str(api_function)
+		log_error("API_ERROR", error_msg, "http_server")
+		return {
+			"status": 500,
+			"body": {
+				"success": false,
+				"error": error_msg
+			}
+		}
