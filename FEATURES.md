@@ -350,20 +350,57 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 - [x] **`modify_project_settings`** - Update project settings
 - [x] **`export_project`** - Build/export functionality
 
-### 🟡 **Phase 3: Advanced Features** (Future)
+### 🟡 **Phase 3: UI Management** (Future)
 
-#### Debugging Integration
-- [ ] **Breakpoint Management** - Set/remove breakpoints
-- [ ] **Variable Inspection** - Runtime variable viewing
-- [ ] **Log Monitoring** - Real-time debug output
+#### UI Positioning & Anchoring (Critical for proper UI layout)
+- [ ] **`set_control_anchors`** - Set anchor points (anchor_left, anchor_top, anchor_right, anchor_bottom)
+- [ ] **`center_control`** - Center a Control node in its parent (both horizontally and vertically)
+- [ ] **`position_control`** - Set absolute position with proper anchor handling
+- [ ] **`fit_control_to_parent`** - Make Control fill its parent container
+- [ ] **`set_anchor_margins`** - Set margins from anchor points for precise positioning
+- [ ] **`configure_size_flags`** - Control how elements expand/shrink in containers
+- [ ] **`setup_control_rect`** - Set position and size with proper anchor calculation
 
-#### Version Control
-- [ ] **Git Integration** - Stage/commit Godot project changes
-- [ ] **Scene Diffing** - Compare scene versions
+#### Smart UI Creation Helpers
+- [ ] **`create_centered_ui`** - Create UI elements that are automatically centered
+- [ ] **`create_fullscreen_ui`** - Create UI that properly fills the screen
+- [ ] **`setup_ui_container_with_children`** - Create container with properly positioned child elements
+- [ ] **`apply_common_ui_patterns`** - Apply pre-configured layouts (main menu, HUD, dialog, etc.)
 
-#### AI-Assisted Development
-- [ ] **Code Generation** - AI-powered GDScript creation
-- [ ] **Scene Suggestions** - Intelligent scene structure recommendations
+#### UI Layout Management
+- [ ] **`create_ui_layout`** - Create UI containers (VBoxContainer, HBoxContainer, GridContainer, etc.)
+- [ ] **`set_anchor_preset`** - Apply common anchor presets (center, full rect, top-left, etc.)
+- [ ] **`configure_margins`** - Set margin values for Control nodes
+- [ ] **`align_controls`** - Align multiple UI elements (left, center, right, top, bottom)
+- [ ] **`distribute_controls`** - Evenly distribute UI elements horizontally/vertically
+
+#### UI Theme Management
+- [ ] **`create_theme`** - Create new Theme resources
+- [ ] **`apply_theme`** - Apply themes to Control nodes or entire scenes
+- [ ] **`modify_theme_properties`** - Edit theme colors, fonts, styles
+- [ ] **`import_theme`** - Import external theme files
+- [ ] **`export_theme`** - Export themes for reuse
+
+#### UI Component Management
+- [ ] **`create_ui_component`** - Create common UI components (dialogs, menus, panels)
+- [ ] **`configure_button`** - Set button text, icons, and styling
+- [ ] **`setup_label`** - Configure label text, alignment, and wrap settings
+- [ ] **`create_input_field`** - Create and configure LineEdit/TextEdit nodes
+- [ ] **`setup_progress_bar`** - Configure progress indicators
+- [ ] **`create_list_container`** - Set up ItemList or Tree components
+
+#### UI Animation & Interaction
+- [ ] **`create_ui_animation`** - Set up Tween nodes for UI animations
+- [ ] **`configure_ui_signals`** - Connect UI signals to script methods
+- [ ] **`setup_focus_navigation`** - Configure tab order and focus behavior
+
+#### UI Responsive Design
+- [ ] **`setup_responsive_layout`** - Configure layouts that adapt to screen sizes
+- [ ] **`create_size_flags`** - Set expand/fill behavior for containers
+- [ ] **`configure_split_container`** - Set up resizable UI sections
+
+### 🟡 **Phase 4: Advanced Features** (Future)
+
 
 ---
 
