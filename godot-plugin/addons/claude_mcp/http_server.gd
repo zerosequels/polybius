@@ -255,6 +255,22 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["POST", "/theme/properties/get"]:
 			return godot_api.get_theme_properties(body)
 		
+		# Animation & Interaction endpoints
+		["POST", "/animation/create"]:
+			return godot_api.create_ui_animation(body)
+		
+		["POST", "/animation/signals"]:
+			return godot_api.configure_ui_signals(body)
+		
+		["POST", "/animation/focus"]:
+			return godot_api.setup_focus_navigation(body)
+		
+		["POST", "/animation/control"]:
+			return godot_api.start_ui_animation(body)
+		
+		["POST", "/animation/transition"]:
+			return godot_api.create_ui_transition(body)
+		
 		["GET", "/errors"]:
 			return get_error_log()
 		
