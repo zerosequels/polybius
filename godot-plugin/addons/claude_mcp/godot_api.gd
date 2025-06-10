@@ -1370,3 +1370,551 @@ func _update_asset_references(old_path: String, new_path: String) -> int:
 	# 3. Updating the references and saving the files
 	
 	return references_updated
+
+# UI Control functions
+func set_control_anchors(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var anchor_left = params.get("anchor_left", 0.0)
+	var anchor_top = params.get("anchor_top", 0.0)
+	var anchor_right = params.get("anchor_right", 0.0)
+	var anchor_bottom = params.get("anchor_bottom", 0.0)
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	control_node.anchor_left = anchor_left
+	control_node.anchor_top = anchor_top
+	control_node.anchor_right = anchor_right
+	control_node.anchor_bottom = anchor_bottom
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"anchor_left": anchor_left,
+			"anchor_top": anchor_top,
+			"anchor_right": anchor_right,
+			"anchor_bottom": anchor_bottom,
+			"message": "Control anchors set successfully"
+		}
+	}
+
+func center_control(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var horizontal = params.get("horizontal", true)
+	var vertical = params.get("vertical", true)
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	
+	if horizontal and vertical:
+		# Center both horizontally and vertically
+		control_node.anchor_left = 0.5
+		control_node.anchor_right = 0.5
+		control_node.anchor_top = 0.5
+		control_node.anchor_bottom = 0.5
+		control_node.offset_left = -control_node.size.x / 2
+		control_node.offset_right = control_node.size.x / 2
+		control_node.offset_top = -control_node.size.y / 2
+		control_node.offset_bottom = control_node.size.y / 2
+	elif horizontal:
+		# Center horizontally only
+		control_node.anchor_left = 0.5
+		control_node.anchor_right = 0.5
+		control_node.offset_left = -control_node.size.x / 2
+		control_node.offset_right = control_node.size.x / 2
+	elif vertical:
+		# Center vertically only
+		control_node.anchor_top = 0.5
+		control_node.anchor_bottom = 0.5
+		control_node.offset_top = -control_node.size.y / 2
+		control_node.offset_bottom = control_node.size.y / 2
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"horizontal": horizontal,
+			"vertical": vertical,
+			"message": "Control centered successfully"
+		}
+	}
+
+func position_control(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var x = params.get("x", 0.0)
+	var y = params.get("y", 0.0)
+	var anchor_preset = params.get("anchor_preset", "")
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	
+	# Apply anchor preset if specified
+	if not anchor_preset.is_empty():
+		_apply_anchor_preset(control_node, anchor_preset)
+	
+	# Set position based on current anchors
+	control_node.position = Vector2(x, y)
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"x": x,
+			"y": y,
+			"anchor_preset": anchor_preset,
+			"message": "Control positioned successfully"
+		}
+	}
+
+func _apply_anchor_preset(control: Control, preset: String):
+	match preset:
+		"top_left":
+			control.anchor_left = 0.0
+			control.anchor_top = 0.0
+			control.anchor_right = 0.0
+			control.anchor_bottom = 0.0
+		"top_right":
+			control.anchor_left = 1.0
+			control.anchor_top = 0.0
+			control.anchor_right = 1.0
+			control.anchor_bottom = 0.0
+		"bottom_left":
+			control.anchor_left = 0.0
+			control.anchor_top = 1.0
+			control.anchor_right = 0.0
+			control.anchor_bottom = 1.0
+		"bottom_right":
+			control.anchor_left = 1.0
+			control.anchor_top = 1.0
+			control.anchor_right = 1.0
+			control.anchor_bottom = 1.0
+		"center_left":
+			control.anchor_left = 0.0
+			control.anchor_top = 0.5
+			control.anchor_right = 0.0
+			control.anchor_bottom = 0.5
+		"center_top":
+			control.anchor_left = 0.5
+			control.anchor_top = 0.0
+			control.anchor_right = 0.5
+			control.anchor_bottom = 0.0
+		"center_right":
+			control.anchor_left = 1.0
+			control.anchor_top = 0.5
+			control.anchor_right = 1.0
+			control.anchor_bottom = 0.5
+		"center_bottom":
+			control.anchor_left = 0.5
+			control.anchor_top = 1.0
+			control.anchor_right = 0.5
+			control.anchor_bottom = 1.0
+		"center":
+			control.anchor_left = 0.5
+			control.anchor_top = 0.5
+			control.anchor_right = 0.5
+			control.anchor_bottom = 0.5
+		"full_rect":
+			control.anchor_left = 0.0
+			control.anchor_top = 0.0
+			control.anchor_right = 1.0
+			control.anchor_bottom = 1.0
+
+func fit_control_to_parent(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var margin = params.get("margin", 0.0)
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	
+	# Set anchors to fill parent
+	control_node.anchor_left = 0.0
+	control_node.anchor_top = 0.0
+	control_node.anchor_right = 1.0
+	control_node.anchor_bottom = 1.0
+	
+	# Apply margins
+	control_node.offset_left = margin
+	control_node.offset_top = margin
+	control_node.offset_right = -margin
+	control_node.offset_bottom = -margin
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"margin": margin,
+			"message": "Control fitted to parent successfully"
+		}
+	}
+
+func set_anchor_margins(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var margin_left = params.get("margin_left", 0.0)
+	var margin_top = params.get("margin_top", 0.0)
+	var margin_right = params.get("margin_right", 0.0)
+	var margin_bottom = params.get("margin_bottom", 0.0)
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	control_node.offset_left = margin_left
+	control_node.offset_top = margin_top
+	control_node.offset_right = margin_right
+	control_node.offset_bottom = margin_bottom
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"margin_left": margin_left,
+			"margin_top": margin_top,
+			"margin_right": margin_right,
+			"margin_bottom": margin_bottom,
+			"message": "Anchor margins set successfully"
+		}
+	}
+
+func configure_size_flags(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var horizontal_flags = params.get("horizontal_flags", [])
+	var vertical_flags = params.get("vertical_flags", [])
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	
+	# Configure horizontal size flags
+	if horizontal_flags.size() > 0:
+		var h_flags = 0
+		for flag in horizontal_flags:
+			match flag:
+				"fill":
+					h_flags |= Control.SIZE_FILL
+				"expand":
+					h_flags |= Control.SIZE_EXPAND
+				"shrink_center":
+					h_flags |= Control.SIZE_SHRINK_CENTER
+				"shrink_end":
+					h_flags |= Control.SIZE_SHRINK_END
+		control_node.size_flags_horizontal = h_flags
+	
+	# Configure vertical size flags
+	if vertical_flags.size() > 0:
+		var v_flags = 0
+		for flag in vertical_flags:
+			match flag:
+				"fill":
+					v_flags |= Control.SIZE_FILL
+				"expand":
+					v_flags |= Control.SIZE_EXPAND
+				"shrink_center":
+					v_flags |= Control.SIZE_SHRINK_CENTER
+				"shrink_end":
+					v_flags |= Control.SIZE_SHRINK_END
+		control_node.size_flags_vertical = v_flags
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"horizontal_flags": horizontal_flags,
+			"vertical_flags": vertical_flags,
+			"message": "Size flags configured successfully"
+		}
+	}
+
+func setup_control_rect(params: Dictionary) -> Dictionary:
+	var node_path = params.get("node_path", "")
+	var x = params.get("x", 0.0)
+	var y = params.get("y", 0.0)
+	var width = params.get("width", 100.0)
+	var height = params.get("height", 100.0)
+	var anchor_preset = params.get("anchor_preset", "")
+	
+	if node_path.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node path is required"
+			}
+		}
+	
+	var current_scene = EditorInterface.get_edited_scene_root()
+	if not current_scene:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "No scene currently open"
+			}
+		}
+	
+	var target_node = current_scene.get_node_or_null(node_path)
+	if not target_node:
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": "Node not found: " + node_path
+			}
+		}
+	
+	if not target_node is Control:
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Node is not a Control node: " + node_path
+			}
+		}
+	
+	var control_node = target_node as Control
+	
+	# Apply anchor preset if specified
+	if not anchor_preset.is_empty():
+		_apply_anchor_preset(control_node, anchor_preset)
+	
+	# Set position and size
+	control_node.position = Vector2(x, y)
+	control_node.size = Vector2(width, height)
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"node_path": node_path,
+			"x": x,
+			"y": y,
+			"width": width,
+			"height": height,
+			"anchor_preset": anchor_preset,
+			"message": "Control rect setup successfully"
+		}
+	}

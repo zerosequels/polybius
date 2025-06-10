@@ -185,6 +185,28 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["POST", "/project/export"]:
 			return godot_api.export_project(body)
 		
+		# UI Control endpoints
+		["POST", "/control/anchors"]:
+			return godot_api.set_control_anchors(body)
+		
+		["POST", "/control/center"]:
+			return godot_api.center_control(body)
+		
+		["POST", "/control/position"]:
+			return godot_api.position_control(body)
+		
+		["POST", "/control/fit"]:
+			return godot_api.fit_control_to_parent(body)
+		
+		["POST", "/control/margins"]:
+			return godot_api.set_anchor_margins(body)
+		
+		["POST", "/control/size_flags"]:
+			return godot_api.configure_size_flags(body)
+		
+		["POST", "/control/rect"]:
+			return godot_api.setup_control_rect(body)
+		
 		["GET", "/errors"]:
 			return get_error_log()
 		

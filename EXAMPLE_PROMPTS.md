@@ -1,7 +1,7 @@
 # Polybius Example Prompts & Testing Guide
 
 > **Purpose:** End-to-end integration testing prompts for Claude Desktop ↔ MCP Server ↔ Godot Plugin  
-> **Last Updated:** 2025-06-08 (Phase 2: Asset Management Added)  
+> **Last Updated:** 2025-06-10 (Phase 3: UI Positioning & Anchoring Added)  
 > **Prerequisites:** Godot running with Claude MCP plugin enabled, Claude Desktop connected
 
 ## 🏥 **1. Health & Connectivity Tests**
@@ -17,12 +17,13 @@
 **Prompt:** `What Godot tools are available to me?`
 
 **Expected Outcome:**
-- ✅ List showing 21 tools including new Phase 2 tools
+- ✅ List showing 28 tools including new Phase 3 tools
 - ✅ Scene tools: `create_scene`, `open_scene`, `get_current_scene`, `list_scenes`, `duplicate_scene`, `delete_scene`
 - ✅ Node tools: `add_node`, `delete_node`, `move_node`, `get_node_properties`, `set_node_properties`
 - ✅ Script tools: `create_script`, `list_scripts`, `read_script`, `modify_script`, `delete_script`
 - ✅ Asset tools: `import_asset`, `list_resources`, `organize_assets` 🆕 PHASE 2
 - ✅ Project tools: `get_project_settings`, `modify_project_settings`, `export_project` 🆕 PHASE 2
+- ✅ UI Control tools: `set_control_anchors`, `center_control`, `position_control`, `fit_control_to_parent`, `set_anchor_margins`, `configure_size_flags`, `setup_control_rect` 🆕 PHASE 3
 - ✅ Health tool: `godot_health_check`
 - ✅ Each tool shows description and parameters
 
@@ -293,7 +294,85 @@ func add_score(points):
 
 ---
 
-## 💎 **5. Asset Management Tests** 🆕 PHASE 2
+## 🎯 **5. UI Control & Positioning Tests** 🆕 PHASE 3
+
+### Test: Set Control Anchors
+**Prompt:** `Set the anchors for the "StartButton" node: left=0.5, top=0.5, right=0.5, bottom=0.5`
+
+**Expected Outcome:**
+- ✅ Message: "Control anchors set for node 'StartButton': left=0.5, top=0.5, right=0.5, bottom=0.5"
+- ✅ Button anchored to center point in Godot editor
+- ✅ Anchor handles show center positioning in Scene view
+
+### Test: Center Control Node
+**Prompt:** `Center the "ScoreLabel" node both horizontally and vertically`
+
+**Expected Outcome:**
+- ✅ Message: "Control node 'ScoreLabel' centered horizontally and vertically"
+- ✅ Label positioned at exact center of parent in Godot editor
+- ✅ Fixes top-left clustering issue mentioned in roadmap
+
+### Test: Position Control with Anchor Preset
+**Prompt:** `Position the "StartButton" at coordinates (100, 50) with top_left anchor preset`
+
+**Expected Outcome:**
+- ✅ Message: "Control node 'StartButton' positioned at (100, 50) with top_left anchor preset"
+- ✅ Button positioned at specified coordinates from top-left
+- ✅ Anchor preset applied correctly
+
+### Test: Fit Control to Parent
+**Prompt:** `Make the "UI" node fill its parent container with 10 pixel margin`
+
+**Expected Outcome:**
+- ✅ Message: "Control node 'UI' fitted to parent with 10px margin"
+- ✅ UI node fills entire parent with 10px border all around
+- ✅ Anchors set to full rect (0,0,1,1) with proper offsets
+
+### Test: Set Anchor Margins
+**Prompt:** `Set margins for "StartButton": left=20, top=30, right=120, bottom=80`
+
+**Expected Outcome:**
+- ✅ Message: "Anchor margins set for node 'StartButton': left=20, top=30, right=120, bottom=80"
+- ✅ Button positioned with precise pixel margins from anchors
+- ✅ Margins visible in Godot Inspector
+
+### Test: Configure Size Flags
+**Prompt:** `Configure "StartButton" size flags: horizontal=['fill', 'expand'], vertical=['shrink_center']`
+
+**Expected Outcome:**
+- ✅ Message: "Size flags configured for node 'StartButton' - Horizontal: fill, expand - Vertical: shrink_center"
+- ✅ Button behaves correctly in container layouts
+- ✅ Size flags reflected in Godot Inspector
+
+### Test: Setup Complete Control Rect
+**Prompt:** `Setup control rect for "StartButton": position (50, 25), size (200, 40), with center anchor preset`
+
+**Expected Outcome:**
+- ✅ Message: "Control rect set for node 'StartButton': position=(50, 25), size=(200, 40) with center anchor preset"
+- ✅ Button positioned and sized precisely
+- ✅ Anchor preset applied before positioning
+
+### Test: UI Layout Workflow
+**Prompt:** `Create a centered main menu: center the "UI" node, then position "StartButton" at (0, -50) and "QuitButton" at (0, 50) relative to center`
+
+**Expected Outcome:**
+- ✅ UI node centered in parent
+- ✅ Buttons positioned above and below center
+- ✅ Clean, professional menu layout
+- ✅ All positioning operations successful
+
+### Test: Container Layout with Size Flags
+**Prompt:** `Add a VBoxContainer called "MenuContainer", set its size flags to fill and expand both directions, then move all buttons into it`
+
+**Expected Outcome:**
+- ✅ VBoxContainer created with proper size flags
+- ✅ Buttons moved into container
+- ✅ Container fills available space
+- ✅ Vertical layout applied to child buttons
+
+---
+
+## 💎 **6. Asset Management Tests** 🆕 PHASE 2
 
 ### Test: Import Image Asset
 **Prompt:** `Import the image file at "/Users/username/Desktop/player_sprite.png" as an image asset`
@@ -347,7 +426,7 @@ func add_score(points):
 
 ---
 
-## 🔧 **6. Project Management Tests** 🆕 PHASE 2
+## 🔧 **7. Project Management Tests** 🆕 PHASE 2
 
 ### Test: Get All Project Settings
 **Prompt:** `Get all project settings`
@@ -400,7 +479,7 @@ func add_score(points):
 
 ---
 
-## ⚠️ **7. Error Handling Tests**
+## ⚠️ **8. Error Handling Tests**
 
 ### Test: Invalid Node Type
 **Prompt:** `Add a FakeNodeType called "BadNode" to the scene`
@@ -478,6 +557,28 @@ func add_score(points):
 **Expected Outcome:**
 - ✅ Error message: "Project setting not found: nonexistent/fake/setting. Set create_if_missing=true to create it."
 - ✅ No setting created or modified
+
+### Test: Set Anchors on Non-Control Node 🆕 PHASE 3
+**Prompt:** `Set anchors for the "Player" node (which is a Node2D): left=0.5, top=0.5, right=0.5, bottom=0.5`
+
+**Expected Outcome:**
+- ✅ Error message: "Node is not a Control node: Player"
+- ✅ No anchor changes applied
+
+### Test: Center Non-existent Control Node 🆕 PHASE 3
+**Prompt:** `Center the "NonExistentUI" node both horizontally and vertically`
+
+**Expected Outcome:**
+- ✅ Error message: "Node not found: NonExistentUI"
+- ✅ No positioning changes applied
+
+### Test: Position Control with Invalid Anchor Preset 🆕 PHASE 3
+**Prompt:** `Position the "StartButton" at (100, 50) with invalid_preset anchor preset`
+
+**Expected Outcome:**
+- ✅ Button positioned correctly (invalid preset ignored)
+- ✅ Warning or note that invalid preset was not applied
+- ✅ Position still set as requested
 
 ---
 
@@ -562,6 +663,18 @@ func add_score(points):
 - `Reorganize my assets: move UI textures to ui/, character sprites to characters/`
 - `Import background music and place it in audio/music/ directory`
 - `Create a clean asset structure for a 2D platformer with organized folders`
+
+### UI Control & Positioning 🆕 PHASE 3
+- `Create a main menu with properly centered buttons that don't cluster in the top-left`
+- `Set up a HUD with a health bar in the top-left and score display in the top-right`
+- `Center the game over dialog both horizontally and vertically on screen`
+- `Make the pause menu fill the entire screen with a semi-transparent background`
+- `Position the inventory panel at the bottom-right corner with proper margins`
+- `Create a settings menu with controls that expand to fill their container`
+- `Set up a loading screen with a centered progress bar and status text`
+- `Design a mobile UI that adapts properly to different screen sizes using anchors`
+- `Build a split-screen UI with left and right panels that resize proportionally`
+- `Create a game HUD with anchored elements that stay in position during screen resize`
 
 ---
 

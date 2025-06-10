@@ -304,6 +304,121 @@ class GodotClient:
             return response.json()
         except Exception as e:
             return {"error": str(e), "success": False}
+    
+    # UI Control methods
+    async def set_control_anchors(self, node_path: str, anchor_left: float, anchor_top: float, anchor_right: float, anchor_bottom: float) -> Dict[str, Any]:
+        """Set anchor points for a Control node"""
+        data = {
+            "node_path": node_path,
+            "anchor_left": anchor_left,
+            "anchor_top": anchor_top, 
+            "anchor_right": anchor_right,
+            "anchor_bottom": anchor_bottom
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/anchors", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def center_control(self, node_path: str, horizontal: bool = True, vertical: bool = True) -> Dict[str, Any]:
+        """Center a Control node in its parent"""
+        data = {
+            "node_path": node_path,
+            "horizontal": horizontal,
+            "vertical": vertical
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/center", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def position_control(self, node_path: str, x: float, y: float, anchor_preset: Optional[str] = None) -> Dict[str, Any]:
+        """Set absolute position for a Control node with optional anchor preset"""
+        data = {
+            "node_path": node_path,
+            "x": x,
+            "y": y
+        }
+        if anchor_preset:
+            data["anchor_preset"] = anchor_preset
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/position", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def fit_control_to_parent(self, node_path: str, margin: float = 0) -> Dict[str, Any]:
+        """Make a Control node fill its parent container"""
+        data = {
+            "node_path": node_path,
+            "margin": margin
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/fit", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def set_anchor_margins(self, node_path: str, margin_left: float, margin_top: float, margin_right: float, margin_bottom: float) -> Dict[str, Any]:
+        """Set margin values from anchor points for a Control node"""
+        data = {
+            "node_path": node_path,
+            "margin_left": margin_left,
+            "margin_top": margin_top,
+            "margin_right": margin_right,
+            "margin_bottom": margin_bottom
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/margins", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def configure_size_flags(self, node_path: str, horizontal_flags: list = None, vertical_flags: list = None) -> Dict[str, Any]:
+        """Configure how a Control expands and shrinks in containers"""
+        data = {
+            "node_path": node_path,
+            "horizontal_flags": horizontal_flags or [],
+            "vertical_flags": vertical_flags or []
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/size_flags", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def setup_control_rect(self, node_path: str, x: float, y: float, width: float, height: float, anchor_preset: Optional[str] = None) -> Dict[str, Any]:
+        """Set complete position and size for a Control with anchor calculation"""
+        data = {
+            "node_path": node_path,
+            "x": x,
+            "y": y,
+            "width": width,
+            "height": height
+        }
+        if anchor_preset:
+            data["anchor_preset"] = anchor_preset
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/control/rect", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
 
     async def close(self):
         """Close the HTTP client"""

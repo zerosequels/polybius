@@ -25,7 +25,7 @@ Every contribution, no matter the size, makes a real difference. Join the suppor
 ### 🏗️ Architecture Components
 
 1. **🔌 Godot Plugin** (`godot-plugin/`) - GDScript editor plugin exposing Godot functionality via HTTP API
-2. **🐍 MCP Server** (`mcp-server/`) - Python MCP server implementing 21+ tools for complete game development workflow
+2. **🐍 MCP Server** (`mcp-server/`) - Python MCP server implementing 28+ tools for complete game development workflow
 
 ```
 Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP API ↔ Godot Plugin ↔ Godot Editor
@@ -33,7 +33,7 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 
 ---
 
-## ✨ Current Features (Phase 2 Complete!)
+## ✨ Current Features (Phase 3 UI Positioning Complete!)
 
 ### 🎬 **Scene Management** (11 Tools)
 - ✅ **`create_scene`** - Create scenes with smart root node selection (Node2D, Node3D, Control, Node)
@@ -65,22 +65,31 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 - ✅ **`modify_project_settings`** - Update project settings programmatically
 - ✅ **`export_project`** - Build/export projects with preset management
 
+### 🎯 **UI Control & Positioning** (7 Tools) 🆕 **Phase 3**
+- ✅ **`set_control_anchors`** - Set precise anchor points for proper Control positioning
+- ✅ **`center_control`** - Auto-center UI elements (fixes top-left clustering!)
+- ✅ **`position_control`** - Absolute positioning with anchor-aware calculations
+- ✅ **`fit_control_to_parent`** - Fill parent containers with configurable margins
+- ✅ **`set_anchor_margins`** - Precise margin control from anchor points
+- ✅ **`configure_size_flags`** - Control expand/shrink behavior in containers
+- ✅ **`setup_control_rect`** - Complete position/size with anchor calculation
+
 ### 🔧 **Health & Diagnostics**
 - ✅ **`godot_health_check`** - Verify plugin connectivity and status
-- ✅ **22 HTTP Endpoints** - Complete REST API for all functionality
+- ✅ **29 HTTP Endpoints** - Complete REST API for all functionality
 
 ---
 
-## 🚀 Planned Features (Phase 3: UI Management)
+## 🚀 Planned Features (Phase 3 Remaining & Phase 4)
 
-### 🎯 **UI Positioning & Anchoring** (Critical for proper UI layout)
-- 🔄 **`set_control_anchors`** - Set precise anchor points
-- 🔄 **`center_control`** - Auto-center UI elements (fixes top-left clustering!)
-- 🔄 **`position_control`** - Absolute positioning with anchor handling
-- 🔄 **`fit_control_to_parent`** - Fill parent containers
-- 🔄 **`set_anchor_margins`** - Precise margin control
-- 🔄 **`configure_size_flags`** - Control expand/shrink behavior
-- 🔄 **`setup_control_rect`** - Complete position/size with anchor math
+### 🎯 **UI Positioning & Anchoring** ✅ **COMPLETED**
+- ✅ **`set_control_anchors`** - Set precise anchor points
+- ✅ **`center_control`** - Auto-center UI elements (fixes top-left clustering!)
+- ✅ **`position_control`** - Absolute positioning with anchor handling
+- ✅ **`fit_control_to_parent`** - Fill parent containers
+- ✅ **`set_anchor_margins`** - Precise margin control
+- ✅ **`configure_size_flags`** - Control expand/shrink behavior
+- ✅ **`setup_control_rect`** - Complete position/size with anchor math
 
 ### 🎨 **Smart UI Creation Helpers**
 - 🔄 **`create_centered_ui`** - Auto-centered UI elements
@@ -183,16 +192,26 @@ Once installed, Claude can control Godot through natural language:
 "List all scripts and show me the health system code"
 ```
 
+### 🎯 **UI Control & Positioning**
+```
+"Create a main menu with properly centered buttons that don't cluster in the top-left"
+"Set up a HUD with a health bar anchored to the top-left and score in the top-right"
+"Center the game over dialog both horizontally and vertically on screen"
+"Make the pause menu fill the entire screen with proper margins"
+"Position the inventory panel at the bottom-right with anchor margins"
+```
+
 ---
 
 ## 📊 Current Statistics
 
-- **🛠️ Total MCP Tools**: 21 implemented
-- **🌐 HTTP Endpoints**: 22 functional REST endpoints
+- **🛠️ Total MCP Tools**: 28 implemented
+- **🌐 HTTP Endpoints**: 29 functional REST endpoints
 - **🎮 Supported Node Types**: 11 core Godot node types
 - **📁 Asset Types**: 7 categories (image, audio, model, texture, font, scene, script)
+- **🎯 UI Features**: Complete anchor/positioning system for proper UI layout
 - **✅ Test Coverage**: 100% HTTP endpoints, manual MCP testing
-- **💻 Lines of Code**: ~2,100 (estimated)
+- **💻 Lines of Code**: ~2,800 (estimated)
 
 ---
 
@@ -241,7 +260,7 @@ This project is actively developed and welcomes contributions! Whether it's:
 
 ## 📄 License
 
-Open source project - check repository for license details.
+This project is licensed under the MIT License - use it however you want! I hope you find this tool handy for your game development adventures. Feel free to modify, distribute, and build upon it to create amazing things.
 
 ---
 

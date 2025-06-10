@@ -199,6 +199,206 @@ def get_scene_tools() -> list[Tool]:
                 },
                 "required": ["node_path", "properties"]
             }
+        ),
+        Tool(
+            name="set_control_anchors",
+            description="Set anchor points for a Control node (anchor_left, anchor_top, anchor_right, anchor_bottom)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "anchor_left": {
+                        "type": "number",
+                        "description": "Left anchor (0.0 to 1.0)",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "anchor_top": {
+                        "type": "number", 
+                        "description": "Top anchor (0.0 to 1.0)",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "anchor_right": {
+                        "type": "number",
+                        "description": "Right anchor (0.0 to 1.0)",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "anchor_bottom": {
+                        "type": "number",
+                        "description": "Bottom anchor (0.0 to 1.0)",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    }
+                },
+                "required": ["node_path", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom"]
+            }
+        ),
+        Tool(
+            name="center_control",
+            description="Center a Control node in its parent container (both horizontally and vertically)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node to center"
+                    },
+                    "horizontal": {
+                        "type": "boolean",
+                        "description": "Whether to center horizontally (default: true)"
+                    },
+                    "vertical": {
+                        "type": "boolean", 
+                        "description": "Whether to center vertically (default: true)"
+                    }
+                },
+                "required": ["node_path"]
+            }
+        ),
+        Tool(
+            name="position_control",
+            description="Set absolute position for a Control node with proper anchor handling",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "x": {
+                        "type": "number",
+                        "description": "X position in pixels"
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "Y position in pixels"
+                    },
+                    "anchor_preset": {
+                        "type": "string",
+                        "description": "Optional anchor preset to apply before positioning",
+                        "enum": ["top_left", "top_right", "bottom_left", "bottom_right", "center_left", "center_top", "center_right", "center_bottom", "center", "full_rect"]
+                    }
+                },
+                "required": ["node_path", "x", "y"]
+            }
+        ),
+        Tool(
+            name="fit_control_to_parent",
+            description="Make a Control node fill its parent container completely",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "margin": {
+                        "type": "number",
+                        "description": "Optional margin from parent edges in pixels (default: 0)"
+                    }
+                },
+                "required": ["node_path"]
+            }
+        ),
+        Tool(
+            name="set_anchor_margins",
+            description="Set margin values from anchor points for precise Control positioning",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "margin_left": {
+                        "type": "number",
+                        "description": "Left margin in pixels"
+                    },
+                    "margin_top": {
+                        "type": "number",
+                        "description": "Top margin in pixels"
+                    },
+                    "margin_right": {
+                        "type": "number",
+                        "description": "Right margin in pixels"
+                    },
+                    "margin_bottom": {
+                        "type": "number",
+                        "description": "Bottom margin in pixels"
+                    }
+                },
+                "required": ["node_path", "margin_left", "margin_top", "margin_right", "margin_bottom"]
+            }
+        ),
+        Tool(
+            name="configure_size_flags",
+            description="Configure how a Control expands and shrinks in containers",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "horizontal_flags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["fill", "expand", "shrink_center", "shrink_end"]
+                        },
+                        "description": "Horizontal size flags (fill, expand, shrink_center, shrink_end)"
+                    },
+                    "vertical_flags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["fill", "expand", "shrink_center", "shrink_end"]
+                        },
+                        "description": "Vertical size flags (fill, expand, shrink_center, shrink_end)"
+                    }
+                },
+                "required": ["node_path"]
+            }
+        ),
+        Tool(
+            name="setup_control_rect",
+            description="Set complete position and size for a Control with proper anchor calculation",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "x": {
+                        "type": "number",
+                        "description": "X position in pixels"
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "Y position in pixels"
+                    },
+                    "width": {
+                        "type": "number",
+                        "description": "Width in pixels"
+                    },
+                    "height": {
+                        "type": "number",
+                        "description": "Height in pixels"
+                    },
+                    "anchor_preset": {
+                        "type": "string",
+                        "description": "Optional anchor preset to apply",
+                        "enum": ["top_left", "top_right", "bottom_left", "bottom_right", "center_left", "center_top", "center_right", "center_bottom", "center", "full_rect"]
+                    }
+                },
+                "required": ["node_path", "x", "y", "width", "height"]
+            }
         )
     ]
 
@@ -465,6 +665,160 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
             return [TextContent(
                 type="text",
                 text=f"Failed to set node properties: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "set_control_anchors":
+        node_path = arguments["node_path"]
+        anchor_left = arguments["anchor_left"]
+        anchor_top = arguments["anchor_top"]
+        anchor_right = arguments["anchor_right"]
+        anchor_bottom = arguments["anchor_bottom"]
+        
+        result = await godot_client.set_control_anchors(node_path, anchor_left, anchor_top, anchor_right, anchor_bottom)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Control anchors set for node '{node_path}': left={anchor_left}, top={anchor_top}, right={anchor_right}, bottom={anchor_bottom}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to set control anchors: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "center_control":
+        node_path = arguments["node_path"]
+        horizontal = arguments.get("horizontal", True)
+        vertical = arguments.get("vertical", True)
+        
+        result = await godot_client.center_control(node_path, horizontal, vertical)
+        
+        if result.get("success"):
+            center_direction = []
+            if horizontal:
+                center_direction.append("horizontally")
+            if vertical:
+                center_direction.append("vertically")
+            direction_text = " and ".join(center_direction)
+            
+            return [TextContent(
+                type="text",
+                text=f"Control node '{node_path}' centered {direction_text}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to center control: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "position_control":
+        node_path = arguments["node_path"]
+        x = arguments["x"]
+        y = arguments["y"]
+        anchor_preset = arguments.get("anchor_preset")
+        
+        result = await godot_client.position_control(node_path, x, y, anchor_preset)
+        
+        if result.get("success"):
+            response_text = f"Control node '{node_path}' positioned at ({x}, {y})"
+            if anchor_preset:
+                response_text += f" with {anchor_preset} anchor preset"
+            
+            return [TextContent(
+                type="text",
+                text=response_text
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to position control: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "fit_control_to_parent":
+        node_path = arguments["node_path"]
+        margin = arguments.get("margin", 0)
+        
+        result = await godot_client.fit_control_to_parent(node_path, margin)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Control node '{node_path}' fitted to parent with {margin}px margin"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to fit control to parent: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "set_anchor_margins":
+        node_path = arguments["node_path"]
+        margin_left = arguments["margin_left"]
+        margin_top = arguments["margin_top"]
+        margin_right = arguments["margin_right"]
+        margin_bottom = arguments["margin_bottom"]
+        
+        result = await godot_client.set_anchor_margins(node_path, margin_left, margin_top, margin_right, margin_bottom)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Anchor margins set for node '{node_path}': left={margin_left}, top={margin_top}, right={margin_right}, bottom={margin_bottom}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to set anchor margins: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "configure_size_flags":
+        node_path = arguments["node_path"]
+        horizontal_flags = arguments.get("horizontal_flags", [])
+        vertical_flags = arguments.get("vertical_flags", [])
+        
+        result = await godot_client.configure_size_flags(node_path, horizontal_flags, vertical_flags)
+        
+        if result.get("success"):
+            response_text = f"Size flags configured for node '{node_path}'"
+            if horizontal_flags:
+                response_text += f" - Horizontal: {', '.join(horizontal_flags)}"
+            if vertical_flags:
+                response_text += f" - Vertical: {', '.join(vertical_flags)}"
+            
+            return [TextContent(
+                type="text",
+                text=response_text
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to configure size flags: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "setup_control_rect":
+        node_path = arguments["node_path"]
+        x = arguments["x"]
+        y = arguments["y"]
+        width = arguments["width"]
+        height = arguments["height"]
+        anchor_preset = arguments.get("anchor_preset")
+        
+        result = await godot_client.setup_control_rect(node_path, x, y, width, height, anchor_preset)
+        
+        if result.get("success"):
+            response_text = f"Control rect set for node '{node_path}': position=({x}, {y}), size=({width}, {height})"
+            if anchor_preset:
+                response_text += f" with {anchor_preset} anchor preset"
+            
+            return [TextContent(
+                type="text",
+                text=response_text
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to setup control rect: {result.get('error', 'Unknown error')}"
             )]
     
     else:
