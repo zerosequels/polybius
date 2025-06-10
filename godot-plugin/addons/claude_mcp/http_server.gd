@@ -207,6 +207,32 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["POST", "/control/rect"]:
 			return godot_api.setup_control_rect(body)
 		
+		# Smart UI Creation Helper endpoints
+		["POST", "/ui/create_centered"]:
+			return godot_api.create_centered_ui(body)
+		
+		["POST", "/ui/create_fullscreen"]:
+			return godot_api.create_fullscreen_ui(body)
+		
+		["POST", "/ui/container_with_children"]:
+			return godot_api.setup_ui_container_with_children(body)
+		
+		["POST", "/ui/apply_pattern"]:
+			return godot_api.apply_common_ui_patterns(body)
+		
+		# UI Layout Management endpoints
+		["POST", "/layout/create"]:
+			return godot_api.create_ui_layout(body)
+		
+		["POST", "/layout/anchor_preset"]:
+			return godot_api.set_anchor_preset(body)
+		
+		["POST", "/layout/align"]:
+			return godot_api.align_controls(body)
+		
+		["POST", "/layout/distribute"]:
+			return godot_api.distribute_controls(body)
+		
 		["GET", "/errors"]:
 			return get_error_log()
 		

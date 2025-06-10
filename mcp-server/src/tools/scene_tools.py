@@ -399,6 +399,326 @@ def get_scene_tools() -> list[Tool]:
                 },
                 "required": ["node_path", "x", "y", "width", "height"]
             }
+        ),
+        Tool(
+            name="create_centered_ui",
+            description="Create a UI element (Control node) that is automatically centered in its parent",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_type": {
+                        "type": "string",
+                        "description": "Type of Control node to create",
+                        "enum": ["Control", "Label", "Button", "Panel", "PanelContainer", "VBoxContainer", "HBoxContainer"]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for the new UI element"
+                    },
+                    "parent_path": {
+                        "type": "string",
+                        "description": "Path to parent node (empty for scene root)"
+                    },
+                    "width": {
+                        "type": "number",
+                        "description": "Width of the UI element in pixels (optional, defaults to 100)"
+                    },
+                    "height": {
+                        "type": "number",
+                        "description": "Height of the UI element in pixels (optional, defaults to 100)"
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "Text content (for Label/Button nodes)"
+                    }
+                },
+                "required": ["node_type", "name"]
+            }
+        ),
+        Tool(
+            name="create_fullscreen_ui",
+            description="Create a UI element that properly fills the entire screen or its parent container",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_type": {
+                        "type": "string",
+                        "description": "Type of Control node to create",
+                        "enum": ["Control", "Panel", "PanelContainer", "VBoxContainer", "HBoxContainer", "ColorRect"]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for the new UI element"
+                    },
+                    "parent_path": {
+                        "type": "string",
+                        "description": "Path to parent node (empty for scene root)"
+                    },
+                    "margin": {
+                        "type": "number",
+                        "description": "Margin from edges in pixels (optional, defaults to 0)"
+                    }
+                },
+                "required": ["node_type", "name"]
+            }
+        ),
+        Tool(
+            name="setup_ui_container_with_children",
+            description="Create a container UI element with properly positioned child elements",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "container_type": {
+                        "type": "string",
+                        "description": "Type of container to create",
+                        "enum": ["VBoxContainer", "HBoxContainer", "GridContainer", "PanelContainer", "MarginContainer"]
+                    },
+                    "container_name": {
+                        "type": "string",
+                        "description": "Name for the container"
+                    },
+                    "parent_path": {
+                        "type": "string",
+                        "description": "Path to parent node (empty for scene root)"
+                    },
+                    "positioning": {
+                        "type": "string",
+                        "description": "How to position the container",
+                        "enum": ["centered", "fullscreen", "top_left", "custom"]
+                    },
+                    "children": {
+                        "type": "array",
+                        "description": "Array of child elements to create",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "description": "Type of child node"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of child node"
+                                },
+                                "text": {
+                                    "type": "string",
+                                    "description": "Text content for text nodes"
+                                },
+                                "width": {
+                                    "type": "number",
+                                    "description": "Custom width for the child (optional)"
+                                },
+                                "height": {
+                                    "type": "number",
+                                    "description": "Custom height for the child (optional)"
+                                }
+                            },
+                            "required": ["type", "name"]
+                        }
+                    },
+                    "spacing": {
+                        "type": "number",
+                        "description": "Spacing between child elements (for VBox/HBox containers)"
+                    },
+                    "x": {
+                        "type": "number",
+                        "description": "X position for custom positioning"
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "Y position for custom positioning"
+                    },
+                    "width": {
+                        "type": "number",
+                        "description": "Container width for custom positioning"
+                    },
+                    "height": {
+                        "type": "number",
+                        "description": "Container height for custom positioning"
+                    }
+                },
+                "required": ["container_type", "container_name", "positioning", "children"]
+            }
+        ),
+        Tool(
+            name="apply_common_ui_patterns",
+            description="Apply pre-configured UI layouts and patterns (main menu, HUD, dialog, etc.)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "pattern": {
+                        "type": "string",
+                        "description": "UI pattern to apply",
+                        "enum": ["main_menu", "pause_menu", "hud", "dialog", "settings_panel", "inventory_grid", "health_bar", "button_row"]
+                    },
+                    "parent_path": {
+                        "type": "string",
+                        "description": "Path to parent node (empty for scene root)"
+                    },
+                    "name_prefix": {
+                        "type": "string",
+                        "description": "Prefix for generated node names (optional, defaults to pattern name)"
+                    },
+                    "customization": {
+                        "type": "object",
+                        "description": "Pattern-specific customization options",
+                        "properties": {
+                            "title": {
+                                "type": "string",
+                                "description": "Title text for menus/dialogs"
+                            },
+                            "buttons": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Button text for menus (e.g., ['Start Game', 'Settings', 'Quit'])"
+                            },
+                            "grid_columns": {
+                                "type": "number",
+                                "description": "Number of columns for grid patterns"
+                            },
+                            "max_value": {
+                                "type": "number",
+                                "description": "Maximum value for progress bars/health bars"
+                            }
+                        }
+                    }
+                },
+                "required": ["pattern"]
+            }
+        ),
+        Tool(
+            name="create_ui_layout",
+            description="Create UI containers (VBoxContainer, HBoxContainer, GridContainer, etc.) with automatic positioning",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "container_type": {
+                        "type": "string",
+                        "description": "Type of container to create",
+                        "enum": ["VBoxContainer", "HBoxContainer", "GridContainer", "TabContainer", "HSplitContainer", "VSplitContainer", "ScrollContainer", "PanelContainer", "MarginContainer"]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for the container"
+                    },
+                    "parent_path": {
+                        "type": "string",
+                        "description": "Path to parent node (empty for scene root)"
+                    },
+                    "positioning": {
+                        "type": "string",
+                        "description": "How to position the container",
+                        "enum": ["centered", "fullscreen", "top_left", "top_right", "bottom_left", "bottom_right", "custom"]
+                    },
+                    "x": {
+                        "type": "number",
+                        "description": "X position for custom positioning"
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "Y position for custom positioning"
+                    },
+                    "width": {
+                        "type": "number",
+                        "description": "Container width (optional, defaults to auto-size)"
+                    },
+                    "height": {
+                        "type": "number",
+                        "description": "Container height (optional, defaults to auto-size)"
+                    },
+                    "spacing": {
+                        "type": "number",
+                        "description": "Spacing between elements (for VBox/HBox containers)"
+                    },
+                    "columns": {
+                        "type": "number",
+                        "description": "Number of columns (for GridContainer)"
+                    }
+                },
+                "required": ["container_type", "name", "positioning"]
+            }
+        ),
+        Tool(
+            name="set_anchor_preset",
+            description="Apply common anchor presets to Control nodes (center, full rect, corners, etc.)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_path": {
+                        "type": "string",
+                        "description": "Path to the Control node"
+                    },
+                    "preset": {
+                        "type": "string",
+                        "description": "Anchor preset to apply",
+                        "enum": ["top_left", "top_right", "bottom_left", "bottom_right", "center_left", "center_top", "center_right", "center_bottom", "center", "left_wide", "top_wide", "right_wide", "bottom_wide", "vcenter_wide", "hcenter_wide", "full_rect"]
+                    },
+                    "keep_offsets": {
+                        "type": "boolean",
+                        "description": "Whether to keep current offset values (default: false)"
+                    }
+                },
+                "required": ["node_path", "preset"]
+            }
+        ),
+        Tool(
+            name="align_controls",
+            description="Align multiple UI elements relative to each other (left, center, right, top, bottom)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_paths": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Paths to the Control nodes to align",
+                        "minItems": 2
+                    },
+                    "alignment": {
+                        "type": "string",
+                        "description": "How to align the controls",
+                        "enum": ["left", "center", "right", "top", "middle", "bottom", "center_horizontal", "center_vertical"]
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "Reference for alignment: 'first' (use first node), 'last' (use last node), 'parent' (align to parent bounds)",
+                        "enum": ["first", "last", "parent"]
+                    }
+                },
+                "required": ["node_paths", "alignment"]
+            }
+        ),
+        Tool(
+            name="distribute_controls",
+            description="Evenly distribute UI elements horizontally or vertically with specified spacing",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node_paths": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Paths to the Control nodes to distribute",
+                        "minItems": 3
+                    },
+                    "direction": {
+                        "type": "string",
+                        "description": "Direction to distribute elements",
+                        "enum": ["horizontal", "vertical"]
+                    },
+                    "spacing": {
+                        "type": "number",
+                        "description": "Spacing between elements in pixels (optional, defaults to even distribution)"
+                    },
+                    "start_position": {
+                        "type": "number",
+                        "description": "Starting position for distribution (optional, uses current bounds)"
+                    },
+                    "end_position": {
+                        "type": "number",
+                        "description": "Ending position for distribution (optional, uses current bounds)"
+                    }
+                },
+                "required": ["node_paths", "direction"]
+            }
         )
     ]
 
@@ -819,6 +1139,180 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
             return [TextContent(
                 type="text",
                 text=f"Failed to setup control rect: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "create_centered_ui":
+        node_type = arguments["node_type"]
+        name = arguments["name"]
+        parent_path = arguments.get("parent_path", "")
+        width = arguments.get("width", 100)
+        height = arguments.get("height", 100)
+        text = arguments.get("text", "")
+        
+        result = await godot_client.create_centered_ui(node_type, name, parent_path, width, height, text)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Centered UI element '{name}' of type '{node_type}' created successfully with size {width}x{height}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to create centered UI: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "create_fullscreen_ui":
+        node_type = arguments["node_type"]
+        name = arguments["name"]
+        parent_path = arguments.get("parent_path", "")
+        margin = arguments.get("margin", 0)
+        
+        result = await godot_client.create_fullscreen_ui(node_type, name, parent_path, margin)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Fullscreen UI element '{name}' of type '{node_type}' created successfully with {margin}px margin"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to create fullscreen UI: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "setup_ui_container_with_children":
+        container_type = arguments["container_type"]
+        container_name = arguments["container_name"]
+        parent_path = arguments.get("parent_path", "")
+        positioning = arguments["positioning"]
+        children = arguments["children"]
+        spacing = arguments.get("spacing")
+        x = arguments.get("x")
+        y = arguments.get("y")
+        width = arguments.get("width")
+        height = arguments.get("height")
+        
+        result = await godot_client.setup_ui_container_with_children(
+            container_type, container_name, parent_path, positioning, children, 
+            spacing, x, y, width, height
+        )
+        
+        if result.get("success"):
+            created_children = result.get("created_children", [])
+            return [TextContent(
+                type="text",
+                text=f"Container '{container_name}' created with {len(created_children)} children: {', '.join(created_children)}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to create UI container: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "apply_common_ui_patterns":
+        pattern = arguments["pattern"]
+        parent_path = arguments.get("parent_path", "")
+        name_prefix = arguments.get("name_prefix", pattern)
+        customization = arguments.get("customization", {})
+        
+        result = await godot_client.apply_common_ui_patterns(pattern, parent_path, name_prefix, customization)
+        
+        if result.get("success"):
+            created_nodes = result.get("created_nodes", [])
+            return [TextContent(
+                type="text",
+                text=f"UI pattern '{pattern}' applied successfully. Created nodes: {', '.join(created_nodes)}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to apply UI pattern: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "create_ui_layout":
+        container_type = arguments["container_type"]
+        name = arguments["name"]
+        parent_path = arguments.get("parent_path", "")
+        positioning = arguments["positioning"]
+        x = arguments.get("x")
+        y = arguments.get("y")
+        width = arguments.get("width")
+        height = arguments.get("height")
+        spacing = arguments.get("spacing")
+        columns = arguments.get("columns")
+        
+        result = await godot_client.create_ui_layout(
+            container_type, name, parent_path, positioning, x, y, width, height, spacing, columns
+        )
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"UI layout container '{name}' of type '{container_type}' created successfully with {positioning} positioning"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to create UI layout: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "set_anchor_preset":
+        node_path = arguments["node_path"]
+        preset = arguments["preset"]
+        keep_offsets = arguments.get("keep_offsets", False)
+        
+        result = await godot_client.set_anchor_preset(node_path, preset, keep_offsets)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Anchor preset '{preset}' applied to node '{node_path}'"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to set anchor preset: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "align_controls":
+        node_paths = arguments["node_paths"]
+        alignment = arguments["alignment"]
+        reference = arguments.get("reference", "first")
+        
+        result = await godot_client.align_controls(node_paths, alignment, reference)
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Aligned {len(node_paths)} controls with '{alignment}' alignment using '{reference}' reference"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to align controls: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "distribute_controls":
+        node_paths = arguments["node_paths"]
+        direction = arguments["direction"]
+        spacing = arguments.get("spacing")
+        start_position = arguments.get("start_position")
+        end_position = arguments.get("end_position")
+        
+        result = await godot_client.distribute_controls(
+            node_paths, direction, spacing, start_position, end_position
+        )
+        
+        if result.get("success"):
+            return [TextContent(
+                type="text",
+                text=f"Distributed {len(node_paths)} controls {direction}ly with spacing of {result.get('actual_spacing', 'auto')}"
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to distribute controls: {result.get('error', 'Unknown error')}"
             )]
     
     else:

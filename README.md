@@ -25,7 +25,7 @@ Every contribution, no matter the size, makes a real difference. Join the suppor
 ### 🏗️ Architecture Components
 
 1. **🔌 Godot Plugin** (`godot-plugin/`) - GDScript editor plugin exposing Godot functionality via HTTP API
-2. **🐍 MCP Server** (`mcp-server/`) - Python MCP server implementing 28+ tools for complete game development workflow
+2. **🐍 MCP Server** (`mcp-server/`) - Python MCP server implementing 32+ tools for complete game development workflow
 
 ```
 Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP API ↔ Godot Plugin ↔ Godot Editor
@@ -33,7 +33,7 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 
 ---
 
-## ✨ Current Features (Phase 3 UI Positioning Complete!)
+## ✨ Current Features (Phase 3 Smart UI Creation Complete!)
 
 ### 🎬 **Scene Management** (11 Tools)
 - ✅ **`create_scene`** - Create scenes with smart root node selection (Node2D, Node3D, Control, Node)
@@ -74,9 +74,15 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 - ✅ **`configure_size_flags`** - Control expand/shrink behavior in containers
 - ✅ **`setup_control_rect`** - Complete position/size with anchor calculation
 
+### 🎨 **Smart UI Creation Helpers** (4 Tools) 🆕 **Phase 3 Smart UI**
+- ✅ **`create_centered_ui`** - Create UI elements that are automatically centered
+- ✅ **`create_fullscreen_ui`** - Create UI that properly fills the screen
+- ✅ **`setup_ui_container_with_children`** - Create container with properly positioned child elements
+- ✅ **`apply_common_ui_patterns`** - Apply pre-configured layouts (main menu, HUD, dialog, etc.)
+
 ### 🔧 **Health & Diagnostics**
 - ✅ **`godot_health_check`** - Verify plugin connectivity and status
-- ✅ **29 HTTP Endpoints** - Complete REST API for all functionality
+- ✅ **33 HTTP Endpoints** - Complete REST API for all functionality
 
 ---
 
@@ -91,11 +97,11 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 - ✅ **`configure_size_flags`** - Control expand/shrink behavior
 - ✅ **`setup_control_rect`** - Complete position/size with anchor math
 
-### 🎨 **Smart UI Creation Helpers**
-- 🔄 **`create_centered_ui`** - Auto-centered UI elements
-- 🔄 **`create_fullscreen_ui`** - Proper screen-filling UI
-- 🔄 **`setup_ui_container_with_children`** - Containers with positioned children
-- 🔄 **`apply_common_ui_patterns`** - Pre-configured layouts (menus, HUDs, dialogs)
+### 🎨 **Smart UI Creation Helpers** ✅ **COMPLETED**
+- ✅ **`create_centered_ui`** - Auto-centered UI elements
+- ✅ **`create_fullscreen_ui`** - Proper screen-filling UI
+- ✅ **`setup_ui_container_with_children`** - Containers with positioned children
+- ✅ **`apply_common_ui_patterns`** - Pre-configured layouts (menus, HUDs, dialogs)
 
 ### 📐 **UI Layout Management**
 - 🔄 **`create_ui_layout`** - Containers (VBox, HBox, Grid, etc.)
@@ -201,17 +207,27 @@ Once installed, Claude can control Godot through natural language:
 "Position the inventory panel at the bottom-right with anchor margins"
 ```
 
+### 🎨 **Smart UI Creation Helpers**
+```
+"Create a centered 'Start Game' button with 200x50 size that's automatically positioned"
+"Create a fullscreen background panel for the main menu with 20 pixel margins"
+"Apply the main_menu UI pattern with title 'Epic Adventure' and custom buttons"
+"Set up a game HUD using the hud pattern with health and score displays"
+"Create a pause dialog using the dialog pattern with title 'Game Paused'"
+"Set up a main menu container with title and three buttons in one command"
+```
+
 ---
 
 ## 📊 Current Statistics
 
-- **🛠️ Total MCP Tools**: 28 implemented
-- **🌐 HTTP Endpoints**: 29 functional REST endpoints
-- **🎮 Supported Node Types**: 11 core Godot node types
+- **🛠️ Total MCP Tools**: 32 implemented
+- **🌐 HTTP Endpoints**: 33 functional REST endpoints
+- **🎮 Supported Node Types**: 18 core Godot node types (including UI containers)
 - **📁 Asset Types**: 7 categories (image, audio, model, texture, font, scene, script)
-- **🎯 UI Features**: Complete anchor/positioning system for proper UI layout
+- **🎯 UI Features**: Complete anchor/positioning system + Smart UI creation helpers
 - **✅ Test Coverage**: 100% HTTP endpoints, manual MCP testing
-- **💻 Lines of Code**: ~2,800 (estimated)
+- **💻 Lines of Code**: ~3,400 (estimated)
 
 ---
 
@@ -240,7 +256,7 @@ python -m mcp-server.src.server
 ## 🔧 Known Limitations
 
 - **Single Scene Focus**: Tools operate on currently open scene
-- **Node Type Coverage**: Limited to 11 common Godot node types
+- **Node Type Coverage**: Limited to 18 common Godot node types
 - **No Undo Integration**: Scene modifications bypass Godot's undo system
 - **Local Network Only**: HTTP server bound to localhost for security
 

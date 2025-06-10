@@ -17,13 +17,15 @@
 **Prompt:** `What Godot tools are available to me?`
 
 **Expected Outcome:**
-- ✅ List showing 28 tools including new Phase 3 tools
+- ✅ List showing 36 tools including new Phase 3 Smart UI and Layout Management tools
 - ✅ Scene tools: `create_scene`, `open_scene`, `get_current_scene`, `list_scenes`, `duplicate_scene`, `delete_scene`
 - ✅ Node tools: `add_node`, `delete_node`, `move_node`, `get_node_properties`, `set_node_properties`
 - ✅ Script tools: `create_script`, `list_scripts`, `read_script`, `modify_script`, `delete_script`
 - ✅ Asset tools: `import_asset`, `list_resources`, `organize_assets` 🆕 PHASE 2
 - ✅ Project tools: `get_project_settings`, `modify_project_settings`, `export_project` 🆕 PHASE 2
 - ✅ UI Control tools: `set_control_anchors`, `center_control`, `position_control`, `fit_control_to_parent`, `set_anchor_margins`, `configure_size_flags`, `setup_control_rect` 🆕 PHASE 3
+- ✅ Smart UI tools: `create_centered_ui`, `create_fullscreen_ui`, `setup_ui_container_with_children`, `apply_common_ui_patterns` 🆕 PHASE 3 SMART UI
+- ✅ Layout Management tools: `create_ui_layout`, `set_anchor_preset`, `align_controls`, `distribute_controls` 🆕 PHASE 3 UI LAYOUT
 - ✅ Health tool: `godot_health_check`
 - ✅ Each tool shows description and parameters
 
@@ -580,6 +582,215 @@ func add_score(points):
 - ✅ Warning or note that invalid preset was not applied
 - ✅ Position still set as requested
 
+### Test: Create Centered UI Element 🆕 SMART UI
+**Prompt:** `Create a centered Label called "GameTitle" with text "Epic Adventure" and size 300x50`
+
+**Expected Outcome:**
+- ✅ Message: "Centered UI element 'GameTitle' of type 'Label' created successfully with size 300x50"
+- ✅ Label appears perfectly centered in parent container in Godot editor
+- ✅ Text "Epic Adventure" is set automatically
+- ✅ Anchors set to center (0.5, 0.5, 0.5, 0.5) with proper offsets
+
+### Test: Create Fullscreen UI Element 🆕 SMART UI
+**Prompt:** `Create a fullscreen Panel called "Background" with 10 pixel margins`
+
+**Expected Outcome:**
+- ✅ Message: "Fullscreen UI element 'Background' of type 'Panel' created successfully with 10px margin"
+- ✅ Panel fills entire parent container minus 10px margins
+- ✅ Anchors set to full rect (0, 0, 1, 1) with margin offsets
+- ✅ Proper background panel for overlays
+
+### Test: Setup UI Container with Children 🆕 SMART UI
+**Prompt:** `Create a centered VBoxContainer called "MainMenu" with children: Button "StartGame" with text "Start Game", Button "Settings" with text "Settings", Button "Quit" with text "Quit"`
+
+**Expected Outcome:**
+- ✅ Message: "Container 'MainMenu' created with 3 children: StartGame, Settings, Quit"
+- ✅ VBoxContainer positioned at center of parent
+- ✅ Three buttons created as children with correct text
+- ✅ Vertical layout applied with proper spacing
+- ✅ All elements properly centered and organized
+
+### Test: Apply Common UI Pattern - Main Menu 🆕 SMART UI
+**Prompt:** `Apply the main_menu UI pattern with title "Epic Adventure" and buttons ["Start Game", "Load Game", "Settings", "Quit"]`
+
+**Expected Outcome:**
+- ✅ Message: "UI pattern 'main_menu' applied successfully. Created nodes: main_menu_Title, main_menu_StartGame, main_menu_LoadGame, main_menu_Settings, main_menu_Quit, main_menu_Container"
+- ✅ Professional main menu layout created instantly
+- ✅ Title label "Epic Adventure" centered at top
+- ✅ Four buttons with specified text in vertical layout
+- ✅ Container properly centered with good spacing
+
+### Test: Apply Common UI Pattern - HUD 🆕 SMART UI
+**Prompt:** `Apply the hud UI pattern for the game interface`
+
+**Expected Outcome:**
+- ✅ Message: "UI pattern 'hud' applied successfully. Created nodes: hud_HUD, hud_HealthContainer, hud_HealthLabel, hud_Score"
+- ✅ Full-screen HUD overlay created
+- ✅ Health container in top-left with "Health: " label
+- ✅ Score label in top-right showing "Score: 0"
+- ✅ Elements positioned correctly for game HUD
+
+### Test: Apply Common UI Pattern - Dialog 🆕 SMART UI
+**Prompt:** `Apply the dialog UI pattern with title "Confirm Exit" at the root level`
+
+**Expected Outcome:**
+- ✅ Message: "UI pattern 'dialog' applied successfully. Created nodes: dialog_Panel, dialog_Content, dialog_Title, dialog_OK"
+- ✅ Centered dialog panel created over current content
+- ✅ "Confirm Exit" title displayed prominently
+- ✅ OK button ready for user interaction
+- ✅ Professional dialog layout with proper margins
+
+### Test: Create Smart UI Combined Workflow 🆕 SMART UI
+**Prompt:** `Create a fullscreen background panel, then add a centered main menu using the main_menu pattern with title "My Game"`
+
+**Expected Outcome:**
+- ✅ Fullscreen background panel created first
+- ✅ Main menu pattern applied on top with proper hierarchy
+- ✅ Both elements properly positioned and functional
+- ✅ Complete professional menu system ready for use
+
+---
+
+## 🎯 **9. UI Layout Management Tests** 🆕 PHASE 3 UI LAYOUT
+
+### Test: Create UI Layout Container 🆕 UI LAYOUT
+**Prompt:** `Create a VBoxContainer called "MainLayout" with centered positioning and 300x400 size`
+
+**Expected Outcome:**
+- ✅ Message: "UI layout container 'MainLayout' of type 'VBoxContainer' created successfully with centered positioning"
+- ✅ VBoxContainer appears in Godot Scene dock
+- ✅ Container is properly centered in parent with specified size
+- ✅ Container positioned with correct anchors (0.5, 0.5, 0.5, 0.5)
+
+### Test: Create GridContainer with Custom Configuration 🆕 UI LAYOUT
+**Prompt:** `Create a GridContainer called "InventoryGrid" with fullscreen positioning, 4 columns, and spacing of 10`
+
+**Expected Outcome:**
+- ✅ Message: "UI layout container 'InventoryGrid' of type 'GridContainer' created successfully with fullscreen positioning"
+- ✅ GridContainer fills entire parent with proper anchors (0, 0, 1, 1)
+- ✅ Container configured with 4 columns
+- ✅ Grid layout ready for child elements
+
+### Test: Create Custom Positioned Container 🆕 UI LAYOUT
+**Prompt:** `Create an HSplitContainer called "SplitView" with custom positioning at (50, 100) and size 600x300`
+
+**Expected Outcome:**
+- ✅ HSplitContainer created with specified position and size
+- ✅ Container positioned exactly at (50, 100) coordinates
+- ✅ Size set to 600x300 pixels
+- ✅ Split container ready for resizable sections
+
+### Test: Set Anchor Preset 🆕 UI LAYOUT
+**Prompt:** `Set the anchor preset for "MainLayout" to "full_rect" keeping current offsets`
+
+**Expected Outcome:**
+- ✅ Message: "Anchor preset 'full_rect' applied to node 'MainLayout'"
+- ✅ Container anchors changed to full rect (0, 0, 1, 1)
+- ✅ Original size and position preserved due to keep_offsets option
+- ✅ Container now fills parent completely
+
+### Test: Apply Center Anchor Preset 🆕 UI LAYOUT
+**Prompt:** `Set the anchor preset for "InventoryGrid" to "center" without keeping offsets`
+
+**Expected Outcome:**
+- ✅ Message: "Anchor preset 'center' applied to node 'InventoryGrid'"
+- ✅ Container anchors set to center point (0.5, 0.5, 0.5, 0.5)
+- ✅ Container repositioned to center of parent
+- ✅ Size and position adjusted to new anchor configuration
+
+### Test: Align Multiple Controls 🆕 UI LAYOUT
+**Prompt:** `Align these controls to the left: ["Button1", "Button2", "Button3"] using the first button as reference`
+
+**Expected Outcome:**
+- ✅ Message: "Aligned 3 controls with 'left' alignment using 'first' reference"
+- ✅ All three buttons aligned to same left position
+- ✅ First button position used as reference point
+- ✅ Vertical positions remain unchanged
+
+### Test: Center Align Multiple Controls 🆕 UI LAYOUT
+**Prompt:** `Align these UI elements to center horizontally: ["StartButton", "SettingsButton", "QuitButton"] using parent as reference`
+
+**Expected Outcome:**
+- ✅ Message: "Aligned 3 controls with 'center_horizontal' alignment using 'parent' reference"
+- ✅ All buttons centered horizontally within parent bounds
+- ✅ Parent container used as reference for centering calculation
+- ✅ Buttons maintain individual vertical positions
+
+### Test: Distribute Controls Horizontally 🆕 UI LAYOUT
+**Prompt:** `Distribute these controls horizontally with 20 pixel spacing: ["Button1", "Button2", "Button3", "Button4"]`
+
+**Expected Outcome:**
+- ✅ Message: "Distributed 4 controls horizontally with spacing of 20"
+- ✅ All four buttons distributed with exactly 20 pixels between them
+- ✅ Horizontal positions calculated with proper spacing
+- ✅ Vertical positions remain unchanged
+
+### Test: Even Distribution Vertically 🆕 UI LAYOUT
+**Prompt:** `Distribute these labels vertically with even spacing: ["Title", "Subtitle", "Description", "Footer"]`
+
+**Expected Outcome:**
+- ✅ Message: "Distributed 4 controls vertically with spacing of [calculated]"
+- ✅ Labels distributed evenly across available vertical space
+- ✅ Automatic spacing calculation between elements
+- ✅ Professional vertical layout achieved
+
+### Test: Distribution with Custom Bounds 🆕 UI LAYOUT
+**Prompt:** `Distribute these buttons horizontally from position 100 to 800: ["First", "Second", "Third"]`
+
+**Expected Outcome:**
+- ✅ Message: "Distributed 3 controls horizontally with spacing of [calculated]"
+- ✅ First button positioned at x=100
+- ✅ Last button positioned so it ends at x=800
+- ✅ Middle button evenly spaced between boundaries
+
+### Test: Complex Layout Workflow 🆕 UI LAYOUT
+**Prompt:** `Create a VBoxContainer called "MenuContainer" with centered positioning, then create 3 buttons inside it, align them center, and distribute them vertically with 15 pixel spacing`
+
+**Expected Outcome:**
+- ✅ VBoxContainer created and centered
+- ✅ Three buttons created inside container
+- ✅ Buttons aligned to center horizontally
+- ✅ Buttons distributed vertically with 15px spacing
+- ✅ Professional menu layout achieved
+
+### Test: Layout Management Error Cases 🆕 UI LAYOUT
+
+#### Test: Invalid Container Type
+**Prompt:** `Create a FakeContainer called "BadContainer" with centered positioning`
+
+**Expected Outcome:**
+- ✅ Error message: "Invalid container type: FakeContainer"
+- ✅ No container created in scene
+
+#### Test: Insufficient Nodes for Alignment
+**Prompt:** `Align these controls to the left: ["OnlyButton"]`
+
+**Expected Outcome:**
+- ✅ Error message: "At least 2 nodes are required for alignment"
+- ✅ No alignment operations performed
+
+#### Test: Invalid Anchor Preset
+**Prompt:** `Set the anchor preset for "MainLayout" to "invalid_preset"`
+
+**Expected Outcome:**
+- ✅ Anchor preset function executes (invalid preset ignored)
+- ✅ No error but no anchor changes applied
+- ✅ Original anchor configuration preserved
+
+#### Test: Distribution with Too Few Nodes
+**Prompt:** `Distribute these controls horizontally: ["Button1", "Button2"]`
+
+**Expected Outcome:**
+- ✅ Error message: "At least 3 nodes are required for distribution"
+- ✅ No distribution operations performed
+
+#### Test: Align Non-Control Nodes
+**Prompt:** `Align these nodes to the left: ["Player", "Enemy"] where Player is a Node2D`
+
+**Expected Outcome:**
+- ✅ Error message: "Node is not a Control node: Player"
+- ✅ No alignment operations performed
+
 ---
 
 ## 🎯 **Success Criteria Summary**
@@ -675,6 +886,30 @@ func add_score(points):
 - `Design a mobile UI that adapts properly to different screen sizes using anchors`
 - `Build a split-screen UI with left and right panels that resize proportionally`
 - `Create a game HUD with anchored elements that stay in position during screen resize`
+
+### Smart UI Creation Helpers 🆕 PHASE 3 SMART UI
+- `Create a centered "Start Game" button with 200x50 size that's automatically positioned in the middle`
+- `Create a fullscreen background panel for the main menu with 20 pixel margins`
+- `Set up a main menu container with title and three buttons: "Start Game", "Settings", "Quit"`
+- `Apply the main_menu UI pattern with custom title "Epic Adventure" and buttons`
+- `Create a game HUD using the hud pattern with health and score displays`
+- `Set up a pause dialog using the dialog pattern with title "Game Paused"`
+- `Create a centered VBox container with three labels showing game stats`
+- `Make a fullscreen ColorRect background for the loading screen`
+- `Apply the button_row pattern with "Easy", "Medium", "Hard" difficulty buttons`
+- `Create a centered settings panel with a container holding various UI controls`
+
+### UI Layout Management 🆕 PHASE 3 UI LAYOUT
+- `Create a GridContainer called "InventoryGrid" with fullscreen positioning and 6 columns for an item grid`
+- `Set up an HSplitContainer called "GameLayout" with custom positioning to create resizable game panels`
+- `Apply the full_rect anchor preset to the background panel to make it fill the entire screen`
+- `Align all the menu buttons to center horizontally using the parent container as reference`
+- `Distribute the difficulty selection buttons horizontally with 30 pixel spacing between them`
+- `Create a VBoxContainer for the settings menu, then align all option labels to the left`
+- `Set up a responsive layout: create a TabContainer with fullscreen positioning for multiple game panels`
+- `Distribute the HUD elements vertically across the left side of the screen with even spacing`
+- `Apply center anchor preset to the dialog box and align all its buttons horizontally`
+- `Create a complex menu layout: VBoxContainer with centered positioning, add buttons, align center, distribute vertically`
 
 ---
 

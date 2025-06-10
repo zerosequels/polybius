@@ -420,6 +420,163 @@ class GodotClient:
         except Exception as e:
             return {"error": str(e), "success": False}
 
+    # Smart UI Creation Helper methods
+    async def create_centered_ui(self, node_type: str, name: str, parent_path: str = "", width: float = 100, height: float = 100, text: str = "") -> Dict[str, Any]:
+        """Create a UI element that is automatically centered in its parent"""
+        data = {
+            "node_type": node_type,
+            "name": name,
+            "parent_path": parent_path,
+            "width": width,
+            "height": height,
+            "text": text
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/ui/create_centered", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def create_fullscreen_ui(self, node_type: str, name: str, parent_path: str = "", margin: float = 0) -> Dict[str, Any]:
+        """Create a UI element that fills the entire screen or parent container"""
+        data = {
+            "node_type": node_type,
+            "name": name,
+            "parent_path": parent_path,
+            "margin": margin
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/ui/create_fullscreen", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def setup_ui_container_with_children(self, container_type: str, container_name: str, parent_path: str, positioning: str, children: list, spacing: Optional[float] = None, x: Optional[float] = None, y: Optional[float] = None, width: Optional[float] = None, height: Optional[float] = None) -> Dict[str, Any]:
+        """Create a container UI element with properly positioned child elements"""
+        data = {
+            "container_type": container_type,
+            "container_name": container_name,
+            "parent_path": parent_path,
+            "positioning": positioning,
+            "children": children
+        }
+        if spacing is not None:
+            data["spacing"] = spacing
+        if x is not None:
+            data["x"] = x
+        if y is not None:
+            data["y"] = y
+        if width is not None:
+            data["width"] = width
+        if height is not None:
+            data["height"] = height
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/ui/container_with_children", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def apply_common_ui_patterns(self, pattern: str, parent_path: str = "", name_prefix: str = "", customization: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Apply pre-configured UI layouts and patterns"""
+        data = {
+            "pattern": pattern,
+            "parent_path": parent_path,
+            "name_prefix": name_prefix or pattern,
+            "customization": customization or {}
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/ui/apply_pattern", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
+    # UI Layout Management methods
+    async def create_ui_layout(self, container_type: str, name: str, parent_path: str, positioning: str, x: Optional[float] = None, y: Optional[float] = None, width: Optional[float] = None, height: Optional[float] = None, spacing: Optional[float] = None, columns: Optional[int] = None) -> Dict[str, Any]:
+        """Create UI containers with automatic positioning"""
+        data = {
+            "container_type": container_type,
+            "name": name,
+            "parent_path": parent_path,
+            "positioning": positioning
+        }
+        if x is not None:
+            data["x"] = x
+        if y is not None:
+            data["y"] = y
+        if width is not None:
+            data["width"] = width
+        if height is not None:
+            data["height"] = height
+        if spacing is not None:
+            data["spacing"] = spacing
+        if columns is not None:
+            data["columns"] = columns
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/layout/create", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def set_anchor_preset(self, node_path: str, preset: str, keep_offsets: bool = False) -> Dict[str, Any]:
+        """Apply common anchor presets to Control nodes"""
+        data = {
+            "node_path": node_path,
+            "preset": preset,
+            "keep_offsets": keep_offsets
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/layout/anchor_preset", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def align_controls(self, node_paths: list, alignment: str, reference: str = "first") -> Dict[str, Any]:
+        """Align multiple UI elements relative to each other"""
+        data = {
+            "node_paths": node_paths,
+            "alignment": alignment,
+            "reference": reference
+        }
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/layout/align", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+    
+    async def distribute_controls(self, node_paths: list, direction: str, spacing: Optional[float] = None, start_position: Optional[float] = None, end_position: Optional[float] = None) -> Dict[str, Any]:
+        """Evenly distribute UI elements horizontally or vertically"""
+        data = {
+            "node_paths": node_paths,
+            "direction": direction
+        }
+        if spacing is not None:
+            data["spacing"] = spacing
+        if start_position is not None:
+            data["start_position"] = start_position
+        if end_position is not None:
+            data["end_position"] = end_position
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/layout/distribute", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
     async def close(self):
         """Close the HTTP client"""
         await self.client.aclose()
