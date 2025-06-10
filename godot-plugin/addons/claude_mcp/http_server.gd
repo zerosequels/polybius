@@ -233,6 +233,28 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["POST", "/layout/distribute"]:
 			return godot_api.distribute_controls(body)
 		
+		# Theme management endpoints
+		["POST", "/theme/create"]:
+			return godot_api.create_theme(body)
+		
+		["POST", "/theme/apply"]:
+			return godot_api.apply_theme(body)
+		
+		["POST", "/theme/modify"]:
+			return godot_api.modify_theme_properties(body)
+		
+		["POST", "/theme/import"]:
+			return godot_api.import_theme(body)
+		
+		["POST", "/theme/export"]:
+			return godot_api.export_theme(body)
+		
+		["GET", "/theme/list"]:
+			return godot_api.list_themes(body)
+		
+		["POST", "/theme/properties/get"]:
+			return godot_api.get_theme_properties(body)
+		
 		["GET", "/errors"]:
 			return get_error_log()
 		

@@ -1,7 +1,7 @@
 # Polybius Feature Tracking
 
 > **Last Updated:** 2025-06-10  
-> **Status:** Active Development - Phase 3 UI Management (Smart UI Creation Helpers Complete)  
+> **Status:** Active Development - Phase 3 UI Management (UI Theme Management Complete)  
 > **MCP Protocol Version:** 2024-11-05
 
 ## 🚀 Current Implementation Status
@@ -214,6 +214,13 @@
 - `POST /layout/anchor_preset` - Apply anchor presets 🆕 PHASE 3 UI LAYOUT
 - `POST /layout/align` - Align multiple controls 🆕 PHASE 3 UI LAYOUT
 - `POST /layout/distribute` - Distribute controls evenly 🆕 PHASE 3 UI LAYOUT
+- `POST /theme/create` - Create new Theme resources 🆕 PHASE 3 THEME MANAGEMENT
+- `POST /theme/apply` - Apply themes to Control nodes or scenes 🆕 PHASE 3 THEME MANAGEMENT
+- `POST /theme/modify` - Modify theme properties 🆕 PHASE 3 THEME MANAGEMENT
+- `POST /theme/import` - Import external theme files 🆕 PHASE 3 THEME MANAGEMENT
+- `POST /theme/export` - Export theme resources 🆕 PHASE 3 THEME MANAGEMENT
+- `GET /theme/list` - List all theme resources 🆕 PHASE 3 THEME MANAGEMENT
+- `POST /theme/properties/get` - Get theme properties 🆕 PHASE 3 THEME MANAGEMENT
 
 ### ✅ **Asset Management Tools** (IMPLEMENTED - PHASE 2) 🆕
 
@@ -500,30 +507,98 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 - **Use Cases**: Button rows, menu item spacing, toolbar layouts, grid arrangements
 - **Error Handling**: Insufficient nodes, invalid directions, distribution bounds validation
 
-#### UI Theme Management
-- [ ] **`create_theme`** - Create new Theme resources
-- [ ] **`apply_theme`** - Apply themes to Control nodes or entire scenes
-- [ ] **`modify_theme_properties`** - Edit theme colors, fonts, styles
-- [ ] **`import_theme`** - Import external theme files
-- [ ] **`export_theme`** - Export themes for reuse
+#### UI Theme Management ✅ COMPLETED
 
-#### UI Component Management
-- [ ] **`create_ui_component`** - Create common UI components (dialogs, menus, panels)
-- [ ] **`configure_button`** - Set button text, icons, and styling
-- [ ] **`setup_label`** - Configure label text, alignment, and wrap settings
-- [ ] **`create_input_field`** - Create and configure LineEdit/TextEdit nodes
-- [ ] **`setup_progress_bar`** - Configure progress indicators
-- [ ] **`create_list_container`** - Set up ItemList or Tree components
+##### `create_theme` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: Create new Theme resources with configurable properties and base theme inheritance
+- **Parameters**: `name` (required), `path` (optional), `base_theme` (optional), `properties` (optional)
+- **Base Theme Options**: "default_theme", "editor_theme", or path to existing theme file
+- **Property Categories**: colors, fonts, font_sizes, icons, styles with Control type specificity
+- **Features**:
+  - **Automatic Directory Creation**: Creates themes/ directory structure automatically
+  - **Base Theme Inheritance**: Copy properties from Godot's default theme, editor theme, or custom themes
+  - **Property Initialization**: Set colors, fonts, font sizes, icons, and StyleBox properties during creation
+  - **Control Type Support**: Target specific Control types (Button, Label, Panel, etc.) for precise theming
+- **Use Cases**: Custom game themes, consistent UI styling, theme template creation
+- **Error Handling**: Directory creation failures, base theme loading errors, save operation failures
+
+##### `apply_theme` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: Apply themes to Control nodes or entire scenes with recursive application
+- **Parameters**: `theme_path` (required), `target` (optional, defaults to "scene"), `node_path` (optional), `recursive` (optional)
+- **Target Options**: "scene" for entire scene, or specific node path for targeted application
+- **Features**:
+  - **Scene-wide Application**: Apply theme to all Control nodes in the current scene
+  - **Targeted Application**: Apply theme to specific Control node and optionally its children
+  - **Recursive Control**: Choose whether to apply theme to child Control nodes
+  - **Node Count Tracking**: Reports how many nodes were affected by theme application
+- **Use Cases**: Game-wide theme switching, UI section styling, dynamic theme changes
+- **Error Handling**: Theme file validation, scene availability checks, node existence verification
+
+##### `modify_theme_properties` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: Edit specific properties of existing theme resources with add/remove capabilities
+- **Parameters**: `theme_path` (required), `properties` (required), `remove_properties` (optional)
+- **Modification Types**: Add/update colors, fonts, font_sizes, icons, styles, or remove existing properties
+- **Property Format**: "property_name/ControlType" format for precise Control targeting
+- **Features**:
+  - **Batch Property Updates**: Modify multiple theme properties in one operation
+  - **Property Removal**: Remove unwanted or outdated theme properties
+  - **Type-safe Modifications**: Automatic property type detection and validation
+  - **Change Tracking**: Reports count of properties modified and removed
+- **Use Cases**: Theme refinement, property cleanup, bulk theme updates
+- **Error Handling**: Theme loading validation, property format checking, save operation monitoring
+
+##### `import_theme` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: Import external theme files into the Godot project with organization
+- **Parameters**: `source_path` (required), `target_path` (optional), `theme_name` (optional), `overwrite` (optional)
+- **Import Organization**: Automatic placement in themes/ directory with name conflict resolution
+- **Features**:
+  - **External File Support**: Import theme files from anywhere on the filesystem
+  - **Automatic Naming**: Derive theme name from source filename if not specified
+  - **Overwrite Protection**: Prevent accidental theme replacement with confirmation requirement
+  - **Filesystem Integration**: Automatic resource scanning after import for immediate availability
+- **Use Cases**: Theme library sharing, external theme integration, backup restoration
+- **Error Handling**: Source file validation, target directory creation, file copy error handling
+
+##### `export_theme` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: Export theme resources for external use, sharing, or backup
+- **Parameters**: `theme_path` (required), `export_path` (required), `format` (optional), `include_dependencies` (optional)
+- **Export Formats**: "tres" (text format) or "res" (binary format) with automatic extension handling
+- **Features**:
+  - **Format Selection**: Choose between human-readable text or optimized binary formats
+  - **Dependency Handling**: Option to include dependent resources (fonts, textures) in export
+  - **Path Validation**: Automatic file extension addition and export location verification
+  - **Backup Creation**: Perfect for theme versioning and external storage
+- **Use Cases**: Theme sharing, version control, external backup, distribution packaging
+- **Error Handling**: Theme validation, export path checking, save operation verification
+
+##### `list_themes` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: List all theme resources in the project with comprehensive metadata
+- **Parameters**: `directory` (optional, defaults to entire project), `recursive` (optional)
+- **Search Options**: Project-wide or directory-specific theme discovery with recursion control
+- **Features**:
+  - **Comprehensive Discovery**: Find all .tres and .res files containing Theme resources
+  - **Metadata Collection**: Theme name, file path, file size, and resource validation
+  - **Flexible Scope**: Search entire project or specific directories based on needs
+  - **Resource Verification**: Confirms files contain valid Theme resources before listing
+- **Use Cases**: Theme inventory, project organization, asset management, theme selection interfaces
+- **Error Handling**: Directory access validation, resource loading verification, file system error handling
+
+##### `get_theme_properties` 🆕 PHASE 3 THEME MANAGEMENT
+- **Functionality**: Retrieve specific or all properties from existing theme resources for inspection
+- **Parameters**: `theme_path` (required), `property_type` (optional, defaults to "all")
+- **Property Types**: "colors", "fonts", "font_sizes", "icons", "styles", or "all" for complete analysis
+- **Features**:
+  - **Selective Property Retrieval**: Choose specific property categories or get complete theme information
+  - **Formatted Output**: Organized property display with Control type associations
+  - **Theme Analysis**: Perfect for understanding theme structure and property organization
+  - **Integration Ready**: Structured data format for theme editing interfaces
+- **Use Cases**: Theme debugging, property inspection, theme comparison, documentation generation
+- **Error Handling**: Theme file validation, property type verification, resource loading safety
 
 #### UI Animation & Interaction
 - [ ] **`create_ui_animation`** - Set up Tween nodes for UI animations
 - [ ] **`configure_ui_signals`** - Connect UI signals to script methods
 - [ ] **`setup_focus_navigation`** - Configure tab order and focus behavior
-
-#### UI Responsive Design
-- [ ] **`setup_responsive_layout`** - Configure layouts that adapt to screen sizes
-- [ ] **`create_size_flags`** - Set expand/fill behavior for containers
-- [ ] **`configure_split_container`** - Set up resizable UI sections
 
 ### 🟡 **Phase 4: Advanced Features** (Future)
 
@@ -569,11 +644,11 @@ Tool(
 
 ## 📊 **Current Statistics**
 
-- **Total MCP Tools**: 36 implemented (15 from Phase 1, 6 from Phase 2, 15 new in Phase 3)
-- **HTTP Endpoints**: 37 functional (16 from Phase 1, 6 from Phase 2, 15 new in Phase 3)  
+- **Total MCP Tools**: 43 implemented (15 from Phase 1, 6 from Phase 2, 15 from Phase 3 UI, 7 new in Phase 3 Theme Management)
+- **HTTP Endpoints**: 44 functional (16 from Phase 1, 6 from Phase 2, 15 from Phase 3 UI, 7 new in Phase 3 Theme Management)  
 - **Supported Node Types**: 22 core types (including advanced UI containers)
 - **Asset Types Supported**: 7 categories (image, audio, model, texture, font, scene, script, other)
-- **UI Control Features**: Complete anchor/positioning system + Smart UI creation helpers + Advanced layout management
+- **UI Control Features**: Complete anchor/positioning system + Smart UI creation helpers + Advanced layout management + Theme management system
 - **Test Coverage**: HTTP endpoints (100%), MCP tools (manual)
 - **Lines of Code**: ~4,100 (estimated)
 

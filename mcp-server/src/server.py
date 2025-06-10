@@ -11,6 +11,7 @@ from tools.script_tools import get_script_tools, handle_script_tool
 from tools.error_tools import get_error_tools, handle_error_tool
 from tools.asset_tools import get_asset_tools, handle_asset_tool
 from tools.project_tools import get_project_tools, handle_project_tool
+from tools.theme_tools import get_theme_tools, handle_theme_tool
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,7 +24,7 @@ class GodotMCPServer:
         self.godot_client = GodotClient()
         logger.info("📡 Setting up MCP tool handlers...")
         self.setup_handlers()
-        logger.info("🛠️  Registered tools: scene management, script creation, asset management, project settings, error monitoring, health check")
+        logger.info("🛠️  Registered tools: scene management, script creation, asset management, project settings, theme management, error monitoring, health check")
     
     def setup_handlers(self):
         @self.server.list_tools()
@@ -35,6 +36,7 @@ class GodotMCPServer:
             tools.extend(get_error_tools())
             tools.extend(get_asset_tools())
             tools.extend(get_project_tools())
+            tools.extend(get_theme_tools())
             
             # Add health check tool
             tools.append(Tool(
@@ -90,6 +92,11 @@ class GodotMCPServer:
             project_tools = [tool.name for tool in get_project_tools()]
             if name in project_tools:
                 return await handle_project_tool(name, arguments, self.godot_client)
+            
+            # Handle theme tools
+            theme_tools = [tool.name for tool in get_theme_tools()]
+            if name in theme_tools:
+                return await handle_theme_tool(name, arguments, self.godot_client)
             
             # Unknown tool
             return [TextContent(
