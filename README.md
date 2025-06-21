@@ -11,6 +11,7 @@ Polybius represents hundreds of hours of dedicated development to bridge AI and 
 - 🐛 **Bug fixes and improvements** - Keeping everything running smoothly
 - 📚 **Documentation and tutorials** - Making it easier for everyone to use
 - 🌟 **Community growth** - Building the future of AI-assisted game development
+- 🎮 **Exclusive weekly game jam access** - Join our private Discord community of AI-powered game developers with automated weekly game jams every Wednesday. Connect with fellow creators exploring AI-assisted development, share your AI-generated game ideas, and participate in challenges designed for developers using Claude, ChatGPT, and other AI tools in their creative process
 
 **[☕ Support on Ko-fi](https://ko-fi.com/zerosequels)**
 
