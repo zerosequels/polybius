@@ -577,6 +577,30 @@ class GodotClient:
         except Exception as e:
             return {"error": str(e), "success": False}
 
+    async def get_node_class_info(self, class_name: str) -> Dict[str, Any]:
+        """Get information about a specific Godot node class"""
+        data = {"class_name": class_name}
+        
+        try:
+            response = await self.client.post(f"{self.base_url}/node/class_info", json=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
+    async def list_node_classes(self, filter_type: str = "all", search_term: str = "") -> Dict[str, Any]:
+        """List available Godot node classes with optional filtering"""
+        data = {"filter": filter_type}
+        if search_term:
+            data["search"] = search_term
+        
+        try:
+            response = await self.client.get(f"{self.base_url}/node/list_classes", params=data)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"error": str(e), "success": False}
+
     async def close(self):
         """Close the HTTP client"""
         await self.client.aclose()

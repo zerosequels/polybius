@@ -897,57 +897,181 @@ func set_node_properties(params: Dictionary) -> Dictionary:
 	}
 
 func _create_node_by_type(type: String) -> Node:
-	match type:
-		"Node":
-			return Node.new()
-		"Node2D":
-			return Node2D.new()
-		"Node3D":
-			return Node3D.new()
-		"Control":
-			return Control.new()
-		"Label":
-			return Label.new()
-		"Button":
-			return Button.new()
-		"Panel":
-			return Panel.new()
-		"PanelContainer":
-			return PanelContainer.new()
-		"VBoxContainer":
-			return VBoxContainer.new()
-		"HBoxContainer":
-			return HBoxContainer.new()
-		"GridContainer":
-			return GridContainer.new()
-		"MarginContainer":
-			return MarginContainer.new()
-		"TabContainer":
-			return TabContainer.new()
-		"HSplitContainer":
-			return HSplitContainer.new()
-		"VSplitContainer":
-			return VSplitContainer.new()
-		"ScrollContainer":
-			return ScrollContainer.new()
-		"ColorRect":
-			return ColorRect.new()
-		"Sprite2D":
-			return Sprite2D.new()
-		"RigidBody2D":
-			return RigidBody2D.new()
-		"StaticBody2D":
-			return StaticBody2D.new()
-		"CharacterBody2D":
-			return CharacterBody2D.new()
-		"Camera2D":
-			return Camera2D.new()
-		"AudioStreamPlayer":
-			return AudioStreamPlayer.new()
-		"Timer":
-			return Timer.new()
-		_:
+	# Use ClassDB to dynamically create any valid Godot node type
+	if ClassDB.class_exists(type):
+		# Check if the class can be instantiated (not abstract)
+		if ClassDB.can_instantiate(type):
+			# Verify it's a Node-derived class
+			if ClassDB.is_parent_class(type, "Node"):
+				return ClassDB.instantiate(type)
+			else:
+				print("Warning: Class '" + type + "' is not a Node-derived class")
+				return null
+		else:
+			print("Warning: Class '" + type + "' cannot be instantiated (likely abstract)")
 			return null
+	else:
+		print("Warning: Class '" + type + "' does not exist in Godot")
+		return null
+
+# Node documentation and discovery functions
+func get_node_class_info(params: Dictionary) -> Dictionary:
+	var class_name = params.get("class_name", "")
+	
+	if class_name.is_empty():
+		return {
+			"status": 400,
+			"body": {
+				"success": false,
+				"error": "Class name is required"
+			}
+		}
+	
+	if not ClassDB.class_exists(class_name):
+		# Try to find similar class names
+		var all_classes = ClassDB.get_class_list()
+		var suggestions = []
+		for cls in all_classes:
+			if cls.to_lower().contains(class_name.to_lower()) or class_name.to_lower().contains(cls.to_lower()):
+				suggestions.append(cls)
+		
+		var error_msg = "Class '" + class_name + "' does not exist in Godot"
+		if suggestions.size() > 0:
+			error_msg += ". Did you mean: " + ", ".join(suggestions.slice(0, 5))
+		
+		return {
+			"status": 404,
+			"body": {
+				"success": false,
+				"error": error_msg,
+				"suggestions": suggestions.slice(0, 10)
+			}
+		}
+	
+	var info = {
+		"class_name": class_name,
+		"exists": true,
+		"can_instantiate": ClassDB.can_instantiate(class_name),
+		"is_node": ClassDB.is_parent_class(class_name, "Node"),
+		"parent_class": ClassDB.get_parent_class(class_name),
+		"child_classes": [],
+		"properties": [],
+		"methods": []
+	}
+	
+	# Get child classes
+	var all_classes = ClassDB.get_class_list()
+	for cls in all_classes:
+		if ClassDB.get_parent_class(cls) == class_name:
+			info.child_classes.append(cls)
+	
+	# Get class methods
+	var methods = ClassDB.class_get_method_list(class_name, true)
+	for method in methods:
+		info.methods.append(method.name)
+	
+	# Get class properties
+	var properties = ClassDB.class_get_property_list(class_name, true)
+	for prop in properties:
+		if prop.usage & PROPERTY_USAGE_STORAGE:  # Only include storable properties
+			info.properties.append({
+				"name": prop.name,
+				"type": _type_to_string(prop.type),
+				"usage": prop.usage
+			})
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"info": info
+		}
+	}
+
+func list_node_classes(params: Dictionary) -> Dictionary:
+	var filter_type = params.get("filter", "all")  # all, node, control, node2d, node3d
+	var search_term = params.get("search", "")
+	
+	var all_classes = ClassDB.get_class_list()
+	var filtered_classes = []
+	
+	for cls in all_classes:
+		var include_class = false
+		
+		# Apply filter
+		match filter_type:
+			"all":
+				include_class = true
+			"node":
+				include_class = ClassDB.is_parent_class(cls, "Node")
+			"control":
+				include_class = ClassDB.is_parent_class(cls, "Control")
+			"node2d":
+				include_class = ClassDB.is_parent_class(cls, "Node2D")
+			"node3d":
+				include_class = ClassDB.is_parent_class(cls, "Node3D")
+			_:
+				include_class = ClassDB.is_parent_class(cls, filter_type)
+		
+		# Apply search term
+		if include_class and not search_term.is_empty():
+			include_class = cls.to_lower().contains(search_term.to_lower())
+		
+		if include_class:
+			filtered_classes.append({
+				"name": cls,
+				"parent": ClassDB.get_parent_class(cls),
+				"can_instantiate": ClassDB.can_instantiate(cls),
+				"is_node": ClassDB.is_parent_class(cls, "Node")
+			})
+	
+	# Sort by name
+	filtered_classes.sort_custom(func(a, b): return a.name < b.name)
+	
+	return {
+		"status": 200,
+		"body": {
+			"success": true,
+			"classes": filtered_classes,
+			"total_count": filtered_classes.size(),
+			"filter": filter_type,
+			"search": search_term
+		}
+	}
+
+# Helper function to convert Godot's type enum to string
+func _type_to_string(type: int) -> String:
+	match type:
+		TYPE_NIL: return "nil"
+		TYPE_BOOL: return "bool"
+		TYPE_INT: return "int"
+		TYPE_FLOAT: return "float"
+		TYPE_STRING: return "String"
+		TYPE_VECTOR2: return "Vector2"
+		TYPE_VECTOR2I: return "Vector2i"
+		TYPE_RECT2: return "Rect2"
+		TYPE_RECT2I: return "Rect2i"
+		TYPE_VECTOR3: return "Vector3"
+		TYPE_VECTOR3I: return "Vector3i"
+		TYPE_TRANSFORM2D: return "Transform2D"
+		TYPE_VECTOR4: return "Vector4"
+		TYPE_VECTOR4I: return "Vector4i"
+		TYPE_PLANE: return "Plane"
+		TYPE_QUATERNION: return "Quaternion"
+		TYPE_AABB: return "AABB"
+		TYPE_BASIS: return "Basis"
+		TYPE_TRANSFORM3D: return "Transform3D"
+		TYPE_PROJECTION: return "Projection"
+		TYPE_COLOR: return "Color"
+		TYPE_STRING_NAME: return "StringName"
+		TYPE_NODE_PATH: return "NodePath"
+		TYPE_RID: return "RID"
+		TYPE_OBJECT: return "Object"
+		TYPE_CALLABLE: return "Callable"
+		TYPE_SIGNAL: return "Signal"
+		TYPE_DICTIONARY: return "Dictionary"
+		TYPE_ARRAY: return "Array"
+		_: return "Unknown"
 
 # Asset management functions
 func import_asset(params: Dictionary) -> Dictionary:

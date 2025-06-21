@@ -271,6 +271,13 @@ func route_request(method: String, path: String, body: Dictionary) -> Dictionary
 		["POST", "/animation/transition"]:
 			return godot_api.create_ui_transition(body)
 		
+		# Node documentation and discovery endpoints
+		["POST", "/node/class_info"]:
+			return godot_api.get_node_class_info(body)
+		
+		["GET", "/node/list_classes"]:
+			return godot_api.list_node_classes(body)
+		
 		["GET", "/errors"]:
 			return get_error_log()
 		

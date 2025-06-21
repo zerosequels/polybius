@@ -66,7 +66,7 @@ def get_scene_tools() -> list[Tool]:
                 "properties": {
                     "type": {
                         "type": "string",
-                        "description": "Type of node to create (e.g., Node, Node2D, Control, Label, Button, etc.)"
+                        "description": "Type of node to create. Can be any valid Godot node class (e.g., Node, Node2D, Node3D, Control, Label, Button, RigidBody2D, AudioStreamPlayer, Camera3D, etc.). Use list_node_classes or get_node_class_info tools to discover available node types."
                     },
                     "name": {
                         "type": "string",
@@ -719,6 +719,39 @@ def get_scene_tools() -> list[Tool]:
                 },
                 "required": ["node_paths", "direction"]
             }
+        ),
+        Tool(
+            name="get_node_class_info",
+            description="Get detailed information about a specific Godot node class, including properties, methods, and inheritance",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "class_name": {
+                        "type": "string",
+                        "description": "Name of the Godot node class to get information about (e.g., 'RigidBody2D', 'AudioStreamPlayer3D', 'VideoStreamPlayer')"
+                    }
+                },
+                "required": ["class_name"]
+            }
+        ),
+        Tool(
+            name="list_node_classes",
+            description="List all available Godot node classes with optional filtering and search",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "filter": {
+                        "type": "string",
+                        "description": "Filter classes by type",
+                        "enum": ["all", "node", "control", "node2d", "node3d", "canvasitem", "rigidbody", "area"],
+                        "default": "node"
+                    },
+                    "search": {
+                        "type": "string",
+                        "description": "Search term to filter class names (optional)"
+                    }
+                }
+            }
         )
     ]
 
@@ -830,9 +863,21 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
                 text=f"Node '{node_name}' of type '{node_type}' added successfully"
             )]
         else:
+            error_msg = result.get('error', 'Unknown error')
+            
+            # If the error suggests invalid node type, try to provide suggestions
+            if "Invalid node type" in error_msg or "does not exist" in error_msg:
+                class_info_result = await godot_client.get_node_class_info(node_type)
+                if not class_info_result.get("success") and class_info_result.get("suggestions"):
+                    suggestions = class_info_result.get("suggestions", [])
+                    error_msg += f"\n\nDid you mean one of these? {', '.join(suggestions[:5])}"
+                    if len(suggestions) > 5:
+                        error_msg += f" (and {len(suggestions) - 5} more similar classes)"
+                    error_msg += f"\n\nUse 'list_node_classes' to see all available node types or 'get_node_class_info' to learn about a specific class."
+            
             return [TextContent(
                 type="text",
-                text=f"Failed to add node: {result.get('error', 'Unknown error')}"
+                text=f"Failed to add node: {error_msg}"
             )]
     
     elif name == "list_scenes":
@@ -1313,6 +1358,105 @@ async def handle_scene_tool(name: str, arguments: dict, godot_client: GodotClien
             return [TextContent(
                 type="text",
                 text=f"Failed to distribute controls: {result.get('error', 'Unknown error')}"
+            )]
+    
+    elif name == "get_node_class_info":
+        class_name = arguments["class_name"]
+        
+        result = await godot_client.get_node_class_info(class_name)
+        
+        if result.get("success"):
+            info = result.get("info", {})
+            response_text = f"Class: {info.get('class_name')}\n"
+            response_text += f"Can instantiate: {info.get('can_instantiate')}\n"
+            response_text += f"Is Node: {info.get('is_node')}\n"
+            response_text += f"Parent class: {info.get('parent_class', 'None')}\n"
+            
+            child_classes = info.get('child_classes', [])
+            if child_classes:
+                response_text += f"Child classes: {', '.join(child_classes[:10])}"
+                if len(child_classes) > 10:
+                    response_text += f" (and {len(child_classes) - 10} more)"
+                response_text += "\n"
+            
+            properties = info.get('properties', [])
+            if properties:
+                response_text += f"Properties ({len(properties)}): {', '.join([p['name'] for p in properties[:15]])}"
+                if len(properties) > 15:
+                    response_text += f" (and {len(properties) - 15} more)"
+                response_text += "\n"
+            
+            methods = info.get('methods', [])
+            if methods:
+                response_text += f"Methods ({len(methods)}): {', '.join(methods[:10])}"
+                if len(methods) > 10:
+                    response_text += f" (and {len(methods) - 10} more)"
+            
+            return [TextContent(
+                type="text",
+                text=response_text
+            )]
+        else:
+            error_msg = result.get('error', 'Unknown error')
+            suggestions = result.get('suggestions', [])
+            if suggestions:
+                error_msg += f"\n\nSuggestions: {', '.join(suggestions[:5])}"
+            
+            return [TextContent(
+                type="text",
+                text=f"Failed to get class info: {error_msg}"
+            )]
+    
+    elif name == "list_node_classes":
+        filter_type = arguments.get("filter", "node")
+        search_term = arguments.get("search", "")
+        
+        result = await godot_client.list_node_classes(filter_type, search_term)
+        
+        if result.get("success"):
+            classes = result.get("classes", [])
+            total_count = result.get("total_count", 0)
+            
+            if not classes:
+                return [TextContent(
+                    type="text",
+                    text=f"No classes found with filter '{filter_type}'" + (f" and search '{search_term}'" if search_term else "")
+                )]
+            
+            response_text = f"Found {total_count} classes"
+            if filter_type != "all":
+                response_text += f" (filter: {filter_type})"
+            if search_term:
+                response_text += f" (search: {search_term})"
+            response_text += ":\n\n"
+            
+            # Group by instantiable vs non-instantiable
+            instantiable = [cls for cls in classes if cls.get('can_instantiate', False)]
+            non_instantiable = [cls for cls in classes if not cls.get('can_instantiate', False)]
+            
+            if instantiable:
+                response_text += "**Instantiable classes:**\n"
+                for cls in instantiable[:20]:  # Show first 20
+                    response_text += f"- {cls['name']}"
+                    if cls.get('parent') and cls['parent'] != 'Object':
+                        response_text += f" (extends {cls['parent']})"
+                    response_text += "\n"
+                if len(instantiable) > 20:
+                    response_text += f"... and {len(instantiable) - 20} more instantiable classes\n"
+            
+            if non_instantiable and len(non_instantiable) <= 10:
+                response_text += "\n**Abstract/Non-instantiable classes:**\n"
+                for cls in non_instantiable:
+                    response_text += f"- {cls['name']} (abstract)\n"
+            
+            return [TextContent(
+                type="text",
+                text=response_text
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Failed to list classes: {result.get('error', 'Unknown error')}"
             )]
     
     else:

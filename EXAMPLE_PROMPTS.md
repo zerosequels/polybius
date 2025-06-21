@@ -1,7 +1,7 @@
 # Polybius Example Prompts & Testing Guide
 
 > **Purpose:** End-to-end integration testing prompts for Claude Desktop ↔ MCP Server ↔ Godot Plugin  
-> **Last Updated:** 2025-06-10 (Phase 3: UI Positioning & Anchoring Added)  
+> **Last Updated:** 2025-06-21 (Universal Node Support Added)  
 > **Prerequisites:** Godot running with Claude MCP plugin enabled, Claude Desktop connected
 
 ## 🏥 **1. Health & Connectivity Tests**
@@ -17,9 +17,9 @@
 **Prompt:** `What Godot tools are available to me?`
 
 **Expected Outcome:**
-- ✅ List showing 36 tools including new Phase 3 Smart UI and Layout Management tools
+- ✅ List showing 50 tools including Phase 3 Smart UI, Layout Management, and new Node Discovery tools
 - ✅ Scene tools: `create_scene`, `open_scene`, `get_current_scene`, `list_scenes`, `duplicate_scene`, `delete_scene`
-- ✅ Node tools: `add_node`, `delete_node`, `move_node`, `get_node_properties`, `set_node_properties`
+- ✅ Node tools: `add_node`, `delete_node`, `move_node`, `get_node_properties`, `set_node_properties`, `get_node_class_info`, `list_node_classes` 🆕 NODE DISCOVERY
 - ✅ Script tools: `create_script`, `list_scripts`, `read_script`, `modify_script`, `delete_script`
 - ✅ Asset tools: `import_asset`, `list_resources`, `organize_assets` 🆕 PHASE 2
 - ✅ Project tools: `get_project_settings`, `modify_project_settings`, `export_project` 🆕 PHASE 2
@@ -140,12 +140,13 @@
 - ✅ Message: "Node 'PlayerSprite' of type 'Sprite2D' added successfully"
 - ✅ Node appears under Player in Scene hierarchy
 
-### Test: Add Multiple Node Types
-**Prompt:** `Add these nodes to the scene: a Button called "StartButton", a Timer called "GameTimer", and a Camera2D called "MainCamera"`
+### Test: Add Multiple Node Types (Enhanced Universal Support)
+**Prompt:** `Add these nodes to the scene: a Button called "StartButton", a Timer called "GameTimer", a Camera2D called "MainCamera", and a VideoStreamPlayer called "IntroVideo"`
 
 **Expected Outcome:**
-- ✅ All three nodes created successfully
+- ✅ All four nodes created successfully (including advanced VideoStreamPlayer)
 - ✅ Each appears in Scene dock with correct types
+- ✅ Universal node support demonstrates 500+ available node types
 
 ### Test: Delete Node ✨ NEW
 **Prompt:** `Delete the node "GameTimer" from the scene with confirmation`
@@ -181,7 +182,85 @@
 
 ---
 
-## 📜 **4. Script Management Tests**
+## 🔍 **4. Node Discovery Tests** 🆕 UNIVERSAL NODE SUPPORT
+
+### Test: Get Node Class Information
+**Prompt:** `Get information about the RigidBody3D class`
+
+**Expected Outcome:**
+- ✅ Message: "Class: RigidBody3D" with detailed information
+- ✅ Shows can_instantiate: true, is_node: true
+- ✅ Shows parent class (CharacterBody3D or PhysicsBody3D)
+- ✅ Lists child classes if any
+- ✅ Shows available properties (mass, physics_material_override, etc.)
+- ✅ Shows available methods (apply_force, apply_impulse, etc.)
+
+### Test: Get Information About Invalid Node Class
+**Prompt:** `Get information about the FakeNodeType class`
+
+**Expected Outcome:**
+- ✅ Error message: "Class 'FakeNodeType' does not exist in Godot"
+- ✅ Provides suggestions for similar class names if available
+- ✅ No crash or unexpected behavior
+
+### Test: List All Node Classes
+**Prompt:** `List all available node classes`
+
+**Expected Outcome:**
+- ✅ Message: "Found [500+] classes (filter: node):"
+- ✅ Shows comprehensive list of instantiable node classes
+- ✅ Each class shows name and parent class
+- ✅ Separates instantiable vs abstract classes
+- ✅ Demonstrates universal Godot node support
+
+### Test: List Control Node Classes
+**Prompt:** `List all Control node classes for UI development`
+
+**Expected Outcome:**
+- ✅ Message: "Found [100+] classes (filter: control):"
+- ✅ Shows only Control-derived classes (Button, Label, Panel, etc.)
+- ✅ Includes advanced UI nodes (RichTextLabel, Tree, ItemList, etc.)
+- ✅ Helps discover UI node types for interface development
+
+### Test: Search for Audio Node Classes
+**Prompt:** `List node classes with search term "Audio"`
+
+**Expected Outcome:**
+- ✅ Message: "Found [10+] classes (filter: node, search: Audio):"
+- ✅ Shows audio-related nodes (AudioStreamPlayer, AudioStreamPlayer2D, AudioStreamPlayer3D, etc.)
+- ✅ Includes advanced audio nodes (AudioBusLayout, AudioEffectSpectrumAnalyzer, etc.)
+- ✅ Demonstrates search functionality for specific node types
+
+### Test: Discover 3D Physics Nodes
+**Prompt:** `List all Node3D classes related to physics`
+
+**Expected Outcome:**
+- ✅ Filtered list showing 3D physics nodes
+- ✅ Includes RigidBody3D, StaticBody3D, CharacterBody3D, Area3D
+- ✅ Shows collision shapes and physics joints
+- ✅ Helps with 3D game development node discovery
+
+### Test: Enhanced Add Node with Discovery
+**Prompt:** `I want to add a node for playing background music. What options do I have?`
+
+**Expected Outcome:**
+- ✅ Claude uses list_node_classes to find audio nodes
+- ✅ Suggests AudioStreamPlayer, AudioStreamPlayer2D, AudioStreamPlayer3D
+- ✅ Explains differences between the audio player types
+- ✅ Demonstrates intelligent node type assistance
+
+### Test: Complex Node Type Support
+**Prompt:** `Add a NavigationAgent3D called "AIAgent", a MultiplayerSpawner called "EnemySpawner", and a HTTPRequest called "APIClient" to the scene`
+
+**Expected Outcome:**
+- ✅ All three advanced nodes created successfully
+- ✅ Demonstrates support for networking, navigation, and web request nodes
+- ✅ Shows universal node support beyond basic game nodes
+- ✅ Each node appears in Scene dock with correct types
+
+---
+
+## 📜 **5. Script Management Tests**
 
 ### Test: Create Basic Script
 **Prompt:** `Create a script at "res://scripts/player.gd" with basic player movement code`
@@ -249,7 +328,7 @@ func add_score(points):
 
 ---
 
-## 🔄 **5. Workflow Integration Tests**
+## 🔄 **6. Workflow Integration Tests**
 
 ### Test: Complete Game Object Creation
 **Prompt:** `Create a complete player setup: make a new scene called "Player", add a CharacterBody2D node called "PlayerBody", add a Sprite2D child called "PlayerSprite", and create a player controller script at "res://scripts/player_controller.gd" attached to PlayerBody`
@@ -296,7 +375,7 @@ func add_score(points):
 
 ---
 
-## 🎯 **5. UI Control & Positioning Tests** 🆕 PHASE 3
+## 🎯 **7. UI Control & Positioning Tests** 🆕 PHASE 3
 
 ### Test: Set Control Anchors
 **Prompt:** `Set the anchors for the "StartButton" node: left=0.5, top=0.5, right=0.5, bottom=0.5`
@@ -374,7 +453,7 @@ func add_score(points):
 
 ---
 
-## 💎 **6. Asset Management Tests** 🆕 PHASE 2
+## 💎 **8. Asset Management Tests** 🆕 PHASE 2
 
 ### Test: Import Image Asset
 **Prompt:** `Import the image file at "/Users/username/Desktop/player_sprite.png" as an image asset`
@@ -428,7 +507,7 @@ func add_score(points):
 
 ---
 
-## 🔧 **7. Project Management Tests** 🆕 PHASE 2
+## 🔧 **9. Project Management Tests** 🆕 PHASE 2
 
 ### Test: Get All Project Settings
 **Prompt:** `Get all project settings`
@@ -481,13 +560,15 @@ func add_score(points):
 
 ---
 
-## ⚠️ **8. Error Handling Tests**
+## ⚠️ **10. Error Handling Tests**
 
-### Test: Invalid Node Type
+### Test: Invalid Node Type (Enhanced Error Handling)
 **Prompt:** `Add a FakeNodeType called "BadNode" to the scene`
 
 **Expected Outcome:**
-- ✅ Error message: "Invalid node type: FakeNodeType" or similar
+- ✅ Error message: "Failed to add node: Invalid node type: FakeNodeType"
+- ✅ Intelligent suggestions: "Did you mean one of these? [similar class names]"
+- ✅ Helpful guidance: "Use 'list_node_classes' to see all available node types"
 - ✅ No crash or unexpected behavior
 
 ### Test: Open Non-existent Scene
@@ -651,7 +732,7 @@ func add_score(points):
 
 ---
 
-## 🎯 **9. UI Layout Management Tests** 🆕 PHASE 3 UI LAYOUT
+## 🎯 **11. UI Layout Management Tests** 🆕 PHASE 3 UI LAYOUT
 
 ### Test: Create UI Layout Container 🆕 UI LAYOUT
 **Prompt:** `Create a VBoxContainer called "MainLayout" with centered positioning and 300x400 size`
@@ -793,7 +874,7 @@ func add_score(points):
 
 ---
 
-## 🎯 **Success Criteria Summary**
+## 🎯 **12. Success Criteria Summary**
 
 **✅ All tests pass if:**
 - No connection errors or timeouts
@@ -874,6 +955,23 @@ func add_score(points):
 - `Reorganize my assets: move UI textures to ui/, character sprites to characters/`
 - `Import background music and place it in audio/music/ directory`
 - `Create a clean asset structure for a 2D platformer with organized folders`
+
+### Node Discovery & Advanced Game Development 🆕 UNIVERSAL NODE SUPPORT
+- `What node types are available for creating multiplayer games?`
+- `Show me all the physics nodes available for 3D games`
+- `List all the audio-related nodes I can use for sound design`
+- `Get information about the NavigationAgent3D class for AI pathfinding`
+- `What Control nodes are available for creating complex UI interfaces?`
+- `Find nodes related to "Stream" for media playback`
+- `Add a VideoStreamPlayer for playing cutscenes in my game`
+- `Create a multiplayer setup with MultiplayerSpawner and MultiplayerSynchronizer nodes`
+- `Set up a navigation system using NavigationRegion3D and NavigationAgent3D`
+- `Add HTTPRequest nodes for online leaderboards and API communication`
+- `Create advanced physics with Joint3D nodes for complex mechanisms`
+- `Build a VR game using XROrigin3D, XRController3D, and XRCamera3D nodes`
+- `Add CSG nodes (CSGBox3D, CSGSphere3D) for procedural 3D level geometry`
+- `Create particle effects using GPUParticles3D and CPUParticles3D`
+- `Set up advanced lighting with DirectionalLight3D, SpotLight3D, and OmniLight3D`
 
 ### UI Control & Positioning 🆕 PHASE 3
 - `Create a main menu with properly centered buttons that don't cluster in the top-left`

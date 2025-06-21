@@ -26,7 +26,7 @@ Every contribution, no matter the size, makes a real difference. Join the suppor
 ### 🏗️ Architecture Components
 
 1. **🔌 Godot Plugin** (`godot-plugin/`) - GDScript editor plugin exposing Godot functionality via HTTP API
-2. **🐍 MCP Server** (`mcp-server/`) - Python MCP server implementing 32+ tools for complete game development workflow
+2. **🐍 MCP Server** (`mcp-server/`) - Python MCP server implementing 50+ tools for complete game development workflow
 
 ```
 Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP API ↔ Godot Plugin ↔ Godot Editor
@@ -34,20 +34,22 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 
 ---
 
-## ✨ Current Features (Phase 3 Smart UI Creation Complete!)
+## ✨ Current Features (Universal Node Support + Complete Phase 3!)
 
-### 🎬 **Scene Management** (11 Tools)
+### 🎬 **Scene Management** (13 Tools)
 - ✅ **`create_scene`** - Create scenes with smart root node selection (Node2D, Node3D, Control, Node)
 - ✅ **`open_scene`** - Open existing scene files
 - ✅ **`get_current_scene`** - Retrieve current scene information
 - ✅ **`list_scenes`** - List all project scenes
 - ✅ **`duplicate_scene`** - Copy existing scenes with automatic naming
 - ✅ **`delete_scene`** - Safely remove scene files with confirmation
-- ✅ **`add_node`** - Add 11+ node types (UI, Physics, Graphics, Audio, etc.)
+- ✅ **`add_node`** - **Universal node support** - Add any of 500+ Godot node types (UI, Physics, Graphics, Audio, 3D, Advanced, etc.)
 - ✅ **`delete_node`** - Remove nodes with safety protection
 - ✅ **`move_node`** - Reparent and reorder scene nodes
 - ✅ **`get_node_properties`** - Read all node property values
 - ✅ **`set_node_properties`** - Batch modify node properties
+- ✅ **`get_node_class_info`** 🆕 - Get detailed information about any Godot node class
+- ✅ **`list_node_classes`** 🆕 - Discover all available Godot node types with filtering
 
 ### 📝 **Script Management** (5 Tools)
 - ✅ **`create_script`** - Generate GDScript files with templates and node attachment
@@ -83,7 +85,7 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 
 ### 🔧 **Health & Diagnostics**
 - ✅ **`godot_health_check`** - Verify plugin connectivity and status
-- ✅ **33 HTTP Endpoints** - Complete REST API for all functionality
+- ✅ **51 HTTP Endpoints** - Complete REST API for all functionality
 
 ---
 
@@ -174,7 +176,8 @@ Once installed, Claude can control Godot through natural language:
 ### 🎬 **Scene Creation**
 ```
 "Create a new 2D platformer scene called 'Level1' with a CharacterBody2D player"
-"Add a tilemap background and some platform collision shapes"
+"Add a TileMap background and some StaticBody2D platform collision shapes"
+"Add a Camera2D with follow behavior and an AudioStreamPlayer2D for ambient sound"
 "Duplicate this scene and call it 'Level2' in the levels folder"
 ```
 
@@ -197,6 +200,8 @@ Once installed, Claude can control Godot through natural language:
 "Create a player controller script with basic movement"
 "Add a jump mechanic to the existing player script"
 "List all scripts and show me the health system code"
+"What node types are available for creating UI elements?"
+"Get information about the RigidBody3D class and its properties"
 ```
 
 ### 🎯 **UI Control & Positioning**
@@ -222,13 +227,13 @@ Once installed, Claude can control Godot through natural language:
 
 ## 📊 Current Statistics
 
-- **🛠️ Total MCP Tools**: 32 implemented
-- **🌐 HTTP Endpoints**: 33 functional REST endpoints
-- **🎮 Supported Node Types**: 18 core Godot node types (including UI containers)
+- **🛠️ Total MCP Tools**: 50 implemented (including 2 new Node Discovery tools)
+- **🌐 HTTP Endpoints**: 51 functional REST endpoints  
+- **🎮 Supported Node Types**: **All valid Godot node classes (500+ types)** - Universal support via ClassDB
 - **📁 Asset Types**: 7 categories (image, audio, model, texture, font, scene, script)
-- **🎯 UI Features**: Complete anchor/positioning system + Smart UI creation helpers
+- **🎯 UI Features**: Complete anchor/positioning system + Smart UI creation helpers + Universal node discovery
 - **✅ Test Coverage**: 100% HTTP endpoints, manual MCP testing
-- **💻 Lines of Code**: ~3,400 (estimated)
+- **💻 Lines of Code**: ~5,200 (estimated)
 
 ---
 
@@ -257,7 +262,6 @@ python -m mcp-server.src.server
 ## 🔧 Known Limitations
 
 - **Single Scene Focus**: Tools operate on currently open scene
-- **Node Type Coverage**: Limited to 18 common Godot node types
 - **No Undo Integration**: Scene modifications bypass Godot's undo system
 - **Local Network Only**: HTTP server bound to localhost for security
 

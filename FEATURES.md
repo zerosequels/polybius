@@ -76,17 +76,22 @@
   - File existence validation
   - Safe deletion with error handling
 
-#### `add_node`
-- **Functionality**: Add nodes to current scene
+#### `add_node` ✨ ENHANCED
+- **Functionality**: Add nodes to current scene with universal node type support
 - **Parameters**: `type` (required), `name` (required), `parent_path` (optional)
-- **Supported Node Types**:
+- **Supported Node Types**: **All valid Godot node classes** (500+ types including):
   - Basic: `Node`, `Node2D`, `Node3D`
-  - UI: `Control`, `Label`, `Button`
-  - Graphics: `Sprite2D`, `Camera2D`
-  - Physics: `RigidBody2D`, `StaticBody2D`, `CharacterBody2D`
-  - Audio: `AudioStreamPlayer`
-  - Utility: `Timer`
-- **Features**: Parent node validation, automatic ownership assignment
+  - UI: `Control`, `Label`, `Button`, `CheckBox`, `SpinBox`, `TextEdit`, etc.
+  - Graphics: `Sprite2D`, `Camera2D`, `Camera3D`, `MeshInstance3D`, `CSGBox3D`, etc.
+  - Physics: `RigidBody2D`, `RigidBody3D`, `StaticBody2D`, `CharacterBody2D`, `Area2D`, `Area3D`, etc.
+  - Audio: `AudioStreamPlayer`, `AudioStreamPlayer2D`, `AudioStreamPlayer3D`
+  - Advanced: `VideoStreamPlayer`, `HTTPRequest`, `MultiplayerSpawner`, `NavigationAgent2D`, etc.
+- **Features**: 
+  - **Dynamic Node Creation**: Uses Godot's ClassDB for universal node support
+  - **Smart Error Handling**: Provides suggestions for misspelled or invalid node types
+  - **Automatic Validation**: Verifies node type exists and can be instantiated
+  - **Parent node validation**: Ensures parent exists before adding child
+  - **Automatic ownership assignment**: Proper scene ownership setup
 
 #### `delete_node` ✨ NEW
 - **Functionality**: Remove nodes from the current scene
@@ -114,6 +119,30 @@
   - Property value extraction
   - Node type identification
   - Storage-eligible property filtering
+
+#### `get_node_class_info` 🆕 NODE DISCOVERY
+- **Functionality**: Get detailed information about any Godot node class
+- **Parameters**: `class_name` (required)
+- **Features**:
+  - **Class Validation**: Checks if the class exists in Godot
+  - **Instantiation Check**: Verifies if the class can be instantiated (not abstract)
+  - **Inheritance Information**: Shows parent class and child classes
+  - **Property Discovery**: Lists all available properties with types
+  - **Method Discovery**: Lists all available methods
+  - **Smart Suggestions**: Provides similar class names when class doesn't exist
+- **Use Cases**: Learning about unfamiliar node types, discovering available properties/methods
+
+#### `list_node_classes` 🆕 NODE DISCOVERY
+- **Functionality**: List all available Godot node classes with filtering and search
+- **Parameters**: `filter` (optional), `search` (optional)
+- **Filter Options**: "all", "node", "control", "node2d", "node3d", "canvasitem", "rigidbody", "area"
+- **Features**:
+  - **Comprehensive Discovery**: Lists all 500+ Godot node classes
+  - **Smart Filtering**: Filter by node type hierarchy (Control, Node2D, etc.)
+  - **Search Functionality**: Find classes by name substring
+  - **Instantiation Status**: Shows which classes can be instantiated vs abstract
+  - **Inheritance Display**: Shows parent class relationships
+- **Use Cases**: Discovering available node types, finding specific functionality, exploring Godot's node hierarchy
 
 #### `set_node_properties` ✨ NEW
 - **Functionality**: Modify node property values
@@ -226,6 +255,8 @@
 - `POST /animation/focus` - Setup focus navigation and tab order 🆕 PHASE 3 ANIMATION & INTERACTION
 - `POST /animation/control` - Control animation playback (start/stop/pause) 🆕 PHASE 3 ANIMATION & INTERACTION
 - `POST /animation/transition` - Create smooth UI state transitions 🆕 PHASE 3 ANIMATION & INTERACTION
+- `POST /node/class_info` - Get detailed information about Godot node classes 🆕 NODE DISCOVERY
+- `GET /node/list_classes` - List all available Godot node classes with filtering 🆕 NODE DISCOVERY
 
 ### ✅ **Asset Management Tools** (IMPLEMENTED - PHASE 2) 🆕
 
@@ -726,9 +757,9 @@ Tool(
 
 ## 📊 **Current Statistics**
 
-- **Total MCP Tools**: 48 implemented (15 from Phase 1, 6 from Phase 2, 15 from Phase 3 UI, 7 from Phase 3 Theme, 5 new in Phase 3 Animation & Interaction)
-- **HTTP Endpoints**: 49 functional (16 from Phase 1, 6 from Phase 2, 15 from Phase 3 UI, 7 from Phase 3 Theme, 5 new in Phase 3 Animation & Interaction)  
-- **Supported Node Types**: 22 core types (including advanced UI containers)
+- **Total MCP Tools**: 50 implemented (15 from Phase 1, 6 from Phase 2, 15 from Phase 3 UI, 7 from Phase 3 Theme, 5 from Phase 3 Animation & Interaction, 2 new Node Discovery tools)
+- **HTTP Endpoints**: 51 functional (16 from Phase 1, 6 from Phase 2, 15 from Phase 3 UI, 7 from Phase 3 Theme, 5 from Phase 3 Animation & Interaction, 2 new Node Discovery endpoints)  
+- **Supported Node Types**: **All valid Godot node classes (500+ types)** - Universal support via ClassDB
 - **Asset Types Supported**: 7 categories (image, audio, model, texture, font, scene, script, other)
 - **UI Control Features**: Complete anchor/positioning system + Smart UI creation helpers + Advanced layout management + Theme management system + Animation & interaction system
 - **Test Coverage**: HTTP endpoints (100%), MCP tools (manual)
@@ -740,7 +771,6 @@ Tool(
 
 ### Known Limitations
 - **Single Scene**: Tools operate on currently open scene only
-- **Basic Node Types**: Limited to common Godot node types
 - **No Undo**: Scene modifications not integrated with Godot's undo system
 - **File Watching**: No automatic project file change detection
 
