@@ -169,6 +169,186 @@ Claude Desktop ↔ MCP Protocol (JSON-RPC 2.0) ↔ Python MCP Server ↔ HTTP AP
 
 ---
 
+## 🛠️ API Documentation for Developers
+
+### Python MCP Server API
+
+#### Core Tool Categories
+
+##### 🎬 Scene Management Tools
+```python
+# Create new scene
+create_scene(name: str, path?: str, root_node_type: "Node2D"|"Node3D"|"Control"|"Node")
+
+# Scene operations
+open_scene(path: str)
+get_current_scene() -> SceneInfo
+list_scenes() -> SceneInfo[]
+duplicate_scene(source_path: str, new_path: str)
+delete_scene(path: str)
+
+# Node operations
+add_node(node_type: str, name?: str, parent_path?: str)
+delete_node(node_path: str)
+move_node(node_path: str, new_parent_path: str, position?: int)
+get_node_properties(node_path: str) -> NodeProperties
+set_node_properties(node_path: str, properties: dict)
+
+# Node discovery
+get_node_class_info(class_name: str) -> ClassInfo
+list_node_classes(category?: str, search?: str) -> NodeClass[]
+```
+
+##### 📝 Script Management Tools
+```python
+# Script operations
+create_script(path: str, content?: str, node_path?: str)
+list_scripts() -> ScriptInfo[]
+read_script(path: str) -> str
+modify_script(path: str, content: str)
+delete_script(path: str)
+```
+
+##### 🎨 Asset Management Tools
+```python
+# Asset operations
+import_asset(source_path: str, destination_path?: str, asset_type?: str)
+list_resources(directory?: str, filter?: str) -> ResourceInfo[]
+organize_assets(source_path: str, destination_path: str)
+```
+
+##### ⚙️ Project Management Tools
+```python
+# Project configuration
+get_project_settings() -> ProjectSettings
+modify_project_settings(settings: dict)
+export_project(preset_name: str, output_path?: str)
+```
+
+##### 🎯 UI Control & Positioning Tools
+```python
+# Control positioning
+set_control_anchors(node_path: str, anchor_left: float, anchor_top: float, 
+                   anchor_right: float, anchor_bottom: float)
+center_control(node_path: str)
+position_control(node_path: str, x: float, y: float)
+fit_control_to_parent(node_path: str, margin?: float)
+
+# Smart UI creation
+create_centered_ui(node_type: str, name: str, size?: [int, int])
+create_fullscreen_ui(node_type: str, name: str, margin?: float)
+setup_ui_container_with_children(container_type: str, children: UIChild[])
+apply_common_ui_patterns(pattern: str, config: dict)
+```
+
+### HTTP API Endpoints (Godot Plugin)
+
+The Godot plugin exposes 51+ REST endpoints on `http://127.0.0.1:8080`:
+
+#### Health & Diagnostics
+```http
+GET /health                    # Plugin connectivity check
+GET /errors                    # Recent error log
+```
+
+#### Scene Management
+```http
+POST /scene/create            # Create new scene
+GET  /scene/current           # Get current scene info
+POST /scene/open              # Open existing scene
+GET  /scene/list              # List all scenes
+POST /scene/duplicate         # Copy scene
+DELETE /scene                 # Delete scene
+
+POST /node/add                # Add node to scene
+DELETE /node                  # Remove node
+POST /node/move               # Reparent/reorder node
+GET  /node/properties         # Get node properties
+POST /node/properties         # Set node properties
+GET  /node/classes            # List available node types
+GET  /node/class-info         # Get class documentation
+```
+
+#### Script Management
+```http
+POST /script/create           # Create GDScript file
+GET  /script/list             # List all scripts
+GET  /script/read             # Read script content
+POST /script/modify           # Edit script
+DELETE /script                # Delete script
+```
+
+#### Asset Management
+```http
+POST /asset/import            # Import external file
+GET  /asset/list              # List project resources
+POST /asset/organize          # Move/rename assets
+```
+
+#### Project Configuration
+```http
+GET  /project/settings        # Read project.godot
+POST /project/settings        # Update configuration
+POST /project/export          # Build/export project
+```
+
+#### UI Control & Positioning
+```http
+POST /control/anchors         # Set anchor points
+POST /control/center          # Center UI element
+POST /control/position        # Absolute positioning
+POST /control/fit-parent      # Fill parent container
+POST /ui/create-centered      # Smart centered creation
+POST /ui/create-fullscreen    # Smart fullscreen creation
+POST /ui/setup-container      # Container with children
+POST /ui/apply-pattern        # Apply UI layout pattern
+```
+
+### Error Handling
+
+All API endpoints return standardized responses:
+
+```json
+// Success response
+{
+  "success": true,
+  "data": { /* result data */ },
+  "message": "Operation completed successfully"
+}
+
+// Error response  
+{
+  "success": false,
+  "error": "Error description",
+  "details": { /* additional error context */ }
+}
+```
+
+### Type Definitions
+
+```python
+# Common data structures
+class SceneInfo:
+    path: str
+    name: str
+    root_node_type: str
+    is_current: bool
+
+class NodeProperties:
+    name: str
+    type: str
+    properties: dict
+    children: list[str]
+
+class ResourceInfo:
+    path: str
+    type: str
+    size: int
+    imported: bool
+```
+
+---
+
 ## 🎯 Usage Examples
 
 Once installed, Claude can control Godot through natural language:
